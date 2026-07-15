@@ -1,24 +1,13 @@
 # GAIETY Classic — Landing Page
 
-Landing page responsiva construída a partir das características visuais do design system enviado:
-
-- fundo escuro cinematográfico;
-- navegação em cápsula com vidro fosco;
-- grade estrutural atmosférica;
-- tipografia Inter, JetBrains Mono e Barlow Condensed;
-- títulos condensados em grande escala;
-- cards translúcidos com bordas discretas;
-- animações leves de entrada;
-- acentos em champanhe e prata;
-- foto principal imediatamente abaixo da promessa;
-- CTA fixo no celular.
+Landing page responsiva para o relógio GAIETY Classic, com identidade visual escura, detalhes em champanhe e prata e foco em resposta direta.
 
 ## Arquivos
 
 - `index.html`: estrutura e copy da página;
-- `styles.css`: identidade visual e responsividade;
-- `script.js`: animações, FAQ e link global do checkout;
-- `assets/gaiety-classic-hero.webp`: imagem principal fornecida.
+- `styles-a.css` e `styles-b.css`: identidade visual e responsividade;
+- `script.js`: animações, FAQ, imagem e link global do checkout;
+- `image-part1.js`, `image-part2.js` e `image-part3.js`: fotografia otimizada do produto.
 
 ## Configurar o checkout
 
@@ -28,23 +17,22 @@ Abra `script.js` e substitua:
 const checkoutUrl = "https://seu-checkout.com";
 ```
 
-pelo endereço real do seu checkout.
+pelo endereço real do checkout.
 
-## Antes de publicar
+## Antes de vender
 
 1. Substitua os links de política, trocas e contato no rodapé.
-2. Confirme o preço de R$ 297,00.
-3. Confirme se embalagem e envio rastreado fazem parte da oferta.
+2. Confirme o preço de R$ 297,00 e o parcelamento exibido.
+3. Confirme embalagem e envio rastreado.
 4. Adicione CNPJ, razão social e canais de atendimento.
-5. Publique somente informações técnicas verificadas.
-6. Hospede a pasta em GitHub Pages, Vercel, Netlify ou servidor próprio.
+5. Mantenha apenas informações técnicas verificadas.
 
-## Abrir localmente
+## Publicar com GitHub Pages
 
-Basta abrir `index.html` no navegador. Para testar de forma mais fiel, utilize um servidor local:
+No repositório, abra `Settings` → `Pages`. Em `Build and deployment`, selecione `Deploy from a branch`, escolha `main` e a pasta `/ (root)`, e salve.
 
-```bash
-python -m http.server 8000
+O endereço esperado será:
+
+```text
+https://otavioays.github.io/gaiety/
 ```
-
-Depois acesse `http://localhost:8000`.
