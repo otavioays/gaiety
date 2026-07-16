@@ -41,11 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const backdrop = document.querySelector("[data-menu-backdrop]");
   const openButton = document.querySelector("[data-menu-open]");
   const closeButton = document.querySelector("[data-menu-close]");
+  const checkoutUrl = "https://gaiety-6507.myshopify.com/cart/64213500100977:1";
 
-  /* Conversion-forward purchase controls. These point to the offer until the
-     final Shopify checkout URL is supplied. */
+  /* Conversion-forward purchase controls linked to the live Shopify cart. */
   const headerBuy = document.querySelector(".header-buy");
-  if (headerBuy) headerBuy.textContent = "Comprar · R$ 169";
+  if (headerBuy) headerBuy.textContent = "Comprar · até 12x";
 
   const heroCopy = document.querySelector(".hero-copy");
   if (heroCopy && !heroCopy.querySelector(".hero-actions")) {
@@ -53,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const actions = document.createElement("div");
     actions.className = "hero-actions";
     actions.innerHTML = `
-      <a class="hero-buy-primary" href="#comprar" aria-label="Comprar GAIETY Classic por R$ 169">
-        <span>Comprar GAIETY Classic</span><strong>R$ 169</strong>
+      <a class="hero-buy-primary" href="${checkoutUrl}" aria-label="Comprar GAIETY Classic por R$ 169 em até 12 vezes no cartão">
+        <span>Comprar GAIETY Classic<small>Em até 12x no cartão</small></span><strong>R$ 169</strong>
       </a>
       <a class="hero-discover" href="#classic">Ver detalhes</a>
     `;
@@ -65,9 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!document.querySelector(".desktop-buy-dock")) {
     const dock = document.createElement("a");
     dock.className = "desktop-buy-dock";
-    dock.href = "#comprar";
-    dock.setAttribute("aria-label", "Ir para a oferta do GAIETY Classic por R$ 169");
-    dock.innerHTML = `<div><span>GAIETY Classic</span><strong>R$ 169,00</strong></div><b>Comprar agora →</b>`;
+    dock.href = checkoutUrl;
+    dock.setAttribute("aria-label", "Comprar GAIETY Classic por R$ 169 em até 12 vezes no cartão");
+    dock.innerHTML = `<div><span>GAIETY Classic</span><strong>R$ 169,00</strong><small>Em até 12x no cartão</small></div><b>Comprar agora →</b>`;
     body.appendChild(dock);
   }
 
@@ -216,9 +216,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const checkoutUrl = "https://seu-checkout.com";
-  document.querySelectorAll(".checkout-link").forEach((link) => {
+  document.querySelectorAll(
+    '.checkout-link, .header-buy, .hero-buy-primary, .mobile-buy a, .desktop-buy-dock, .menu-panel nav a[href="#comprar"]'
+  ).forEach((link) => {
     link.href = checkoutUrl;
+    link.removeAttribute("target");
+    link.removeAttribute("rel");
   });
 
   const year = document.getElementById("year");
