@@ -137,6 +137,20 @@ html.ds-motion-active .cinematic-copy.reveal {
 
 .hero-buy-primary:hover::before { transform: translateX(120%); }
 
+.hero-buy-primary > span {
+  display: grid;
+  gap: 4px;
+}
+
+.hero-buy-primary small {
+  font-size: .57rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.76);
+}
+
 .hero-buy-primary strong {
   min-width: 112px;
   padding: 12px 14px;
@@ -190,6 +204,12 @@ html.ds-motion-active .cinematic-copy.reveal {
   text-transform: uppercase;
   color: rgba(21,49,38,.62);
 }
+.desktop-buy-dock small {
+  font-size: .56rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #006039;
+}
 .desktop-buy-dock strong {
   font: 700 1.65rem/1 "Cormorant Garamond", Georgia, serif;
 }
@@ -205,6 +225,18 @@ html.ds-motion-active .cinematic-copy.reveal {
   transition: background .25s ease, transform .25s ease;
 }
 .desktop-buy-dock:hover b { background: #007749; transform: translateX(2px); }
+
+.mobile-buy > div {
+  display: grid;
+  gap: 2px;
+}
+
+.mobile-buy small {
+  font-size: .55rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #006039;
+}
 
 .mobile-buy a {
   min-width: 132px;
@@ -234,6 +266,7 @@ html.ds-motion-active .cinematic-copy.reveal {
     min-width: 98px;
     font-size: 1.42rem;
   }
+  .hero-buy-primary small { font-size: .52rem; }
   .hero-discover { display: none; }
   .site-header .header-buy { padding: 9px 12px; font-size: .67rem; }
 }
