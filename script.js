@@ -42,6 +42,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const openButton = document.querySelector("[data-menu-open]");
   const closeButton = document.querySelector("[data-menu-close]");
 
+  /* Conversion-forward purchase controls. These point to the offer until the
+     final Shopify checkout URL is supplied. */
+  const headerBuy = document.querySelector(".header-buy");
+  if (headerBuy) headerBuy.textContent = "Comprar · R$ 169";
+
+  const heroCopy = document.querySelector(".hero-copy");
+  if (heroCopy && !heroCopy.querySelector(".hero-actions")) {
+    const oldDiscoveryLink = heroCopy.querySelector(".text-link");
+    const actions = document.createElement("div");
+    actions.className = "hero-actions";
+    actions.innerHTML = `
+      <a class="hero-buy-primary" href="#comprar" aria-label="Comprar GAIETY Classic por R$ 169">
+        <span>Comprar GAIETY Classic</span><strong>R$ 169</strong>
+      </a>
+      <a class="hero-discover" href="#classic">Ver detalhes</a>
+    `;
+    oldDiscoveryLink?.replaceWith(actions);
+    if (!oldDiscoveryLink) heroCopy.appendChild(actions);
+  }
+
+  if (!document.querySelector(".desktop-buy-dock")) {
+    const dock = document.createElement("a");
+    dock.className = "desktop-buy-dock";
+    dock.href = "#comprar";
+    dock.setAttribute("aria-label", "Ir para a oferta do GAIETY Classic por R$ 169");
+    dock.innerHTML = `<div><span>GAIETY Classic</span><strong>R$ 169,00</strong></div><b>Comprar agora →</b>`;
+    body.appendChild(dock);
+  }
+
+  const mobileBuyLabel = document.querySelector(".mobile-buy a");
+  if (mobileBuyLabel) mobileBuyLabel.textContent = "Comprar agora";
+
   menu?.querySelectorAll("nav a").forEach((link, index) => {
     link.style.setProperty("--menu-index", index);
   });
@@ -169,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    document.querySelectorAll(".header-buy, .buy-button, .text-link, .mobile-buy a").forEach((target) => {
+    document.querySelectorAll(".header-buy, .buy-button, .text-link, .mobile-buy a, .hero-buy-primary, .desktop-buy-dock").forEach((target) => {
       target.addEventListener("pointermove", (event) => {
         const rect = target.getBoundingClientRect();
         const x = event.clientX - rect.left - rect.width / 2;
