@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
 
+  document.querySelectorAll("[data-gaiety-poster]").forEach((image) => {
+    image.src = "assets/gaiety-vintage-final.webp";
+  });
+
   const revealElements = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries, currentObserver) => {
