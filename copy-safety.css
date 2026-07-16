@@ -67,6 +67,16 @@ html.ds-motion-active .cinematic-copy.reveal {
   visibility: visible !important;
 }
 
+/* New editorial image for the technical plate card. */
+.poster-card > img {
+  content: url("7e16370e-033a-4f3d-96bb-0c65e66827f1.png");
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  opacity: 1 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .word-inner {
