@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="media.css">
   <style id="gaiety-visibility-safety">
     .reveal,
     html.motion-ready .reveal,
@@ -42,6 +43,11 @@
         element.classList.add('is-visible');
       });
       document.body.classList.add('is-loaded');
+
+      var heroVideo = document.querySelector('.hero-video');
+      if (heroVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        heroVideo.pause();
+      }
     });
   </script>
 </head>
@@ -69,7 +75,9 @@
 
   <main id="top">
     <section class="hero">
-      <img class="hero-image" src="" data-gaiety-image alt="Relógio GAIETY Classic preto sobre uma almofada bege" width="1086" height="1448" fetchpriority="high">
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="gaiety%202.png" aria-hidden="true">
+        <source src="hf_20260715_213950_7fd7b816-6930-4a6d-96a6-39b031e6cb64.mp4" type="video/mp4">
+      </video>
       <div class="hero-overlay"></div>
       <div class="hero-copy reveal">
         <p class="eyebrow">Relógio masculino GAIETY Classic</p>
@@ -92,7 +100,7 @@
 
     <section class="cinematic" id="design">
       <div class="cinematic-inner">
-        <img src="" data-gaiety-image alt="Close do mostrador preto do GAIETY Classic" width="1086" height="1448" loading="lazy">
+        <img src="f4b71847-8f05-45b0-93d9-bf0d51216aec.png" alt="Composição editorial hiper-realista do relógio GAIETY Classic" width="1086" height="1448" loading="lazy">
         <div class="cinematic-overlay"></div>
         <div class="cinematic-copy reveal">
           <p class="eyebrow">O design</p>
@@ -111,7 +119,7 @@
 
       <div class="bento">
         <article class="media-card tall reveal">
-          <img src="" data-gaiety-image alt="GAIETY Classic em composição elegante" width="1086" height="1448" loading="lazy">
+          <img src="gaiety%202.png" alt="Relógio GAIETY Classic em fotografia de produto" width="1086" height="1448" loading="lazy">
           <div class="shade"></div><div class="card-caption"><small>Uso cotidiano</small><h3>Do trabalho ao jantar</h3></div>
         </article>
         <article class="text-card green-card reveal"><span>01</span><div><p class="eyebrow">Mostrador preto</p><h3>Combina sem exigir esforço.</h3><p>Preto, prata e uma pulseira escura funcionam com camiseta, polo, camisa ou blazer.</p></div></article>
@@ -143,7 +151,7 @@
     </section>
 
     <section class="offer" id="comprar">
-      <div class="offer-image"><img src="" data-gaiety-image alt="Relógio GAIETY Classic" width="1086" height="1448" loading="lazy"></div>
+      <div class="offer-image"><img src="f4b71847-8f05-45b0-93d9-bf0d51216aec.png" alt="Relógio GAIETY Classic em destaque" width="1086" height="1448" loading="lazy"></div>
       <div class="offer-copy reveal">
         <p class="eyebrow green">GAIETY Classic</p>
         <h2>Seu primeiro relógio clássico não precisa custar como o décimo.</h2>
@@ -177,6 +185,6 @@
 
   <div class="mobile-buy"><div><span>GAIETY Classic</span><strong>R$ 297,00</strong></div><a href="#comprar">Comprar</a></div>
 
-  <script src="image-part1.js"></script><script src="image-part2.js"></script><script src="image-part3.js"></script><script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
