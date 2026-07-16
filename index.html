@@ -37,21 +37,21 @@
     html.motion-ready .hero-overlay,
     html.motion-ready body.is-loaded .hero-overlay { opacity: 1 !important; }
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.reveal').forEach(function (element) {
-        element.classList.add('is-visible');
-      });
-      document.body.classList.add('is-loaded');
-
-      var heroVideo = document.querySelector('.hero-video');
-      if (heroVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        heroVideo.pause();
-      }
-    });
-  </script>
+  <link rel="stylesheet" href="ds-completion.css">
 </head>
 <body>
+  <div class="site-rails" aria-hidden="true">
+    <i class="site-rail-node"></i><i class="site-rail-node"></i><i class="site-rail-node"></i>
+  </div>
+
+  <aside class="chapter-indicator" data-chapter-indicator aria-hidden="true">
+    <div class="chapter-indicator-inner">
+      <span class="chapter-number" data-chapter-number>00</span>
+      <div class="chapter-track"><i></i></div>
+      <div class="chapter-copy"><strong data-chapter-title>Abertura</strong><span>GAIETY / GC-01</span></div>
+    </div>
+  </aside>
+
   <header class="site-header" data-header>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-open>
       <span class="menu-icon" aria-hidden="true"><i></i><i></i></span><span>Menu</span>
@@ -65,20 +65,23 @@
     <nav>
       <a href="#classic"><small>01</small>GAIETY Classic</a>
       <a href="#design"><small>02</small>O design</a>
-      <a href="#detalhes"><small>03</small>Especificações</a>
-      <a href="#comprar"><small>04</small>Comprar</a>
-      <a href="#duvidas"><small>05</small>Dúvidas</a>
+      <a href="#anatomia"><small>03</small>Anatomia</a>
+      <a href="#detalhes"><small>04</small>Especificações</a>
+      <a href="#comprar"><small>05</small>Comprar</a>
+      <a href="#duvidas"><small>06</small>Dúvidas</a>
     </nav>
     <p>Elegância clássica. Presença sem exagero.</p>
   </aside>
   <button class="menu-backdrop" type="button" aria-label="Fechar menu" data-menu-backdrop></button>
 
   <main id="top">
-    <section class="hero">
+    <section class="hero" data-chapter="00" data-chapter-title="Abertura">
       <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="gaiety%202.png" aria-hidden="true">
         <source src="hf_20260715_213950_7fd7b816-6930-4a6d-96a6-39b031e6cb64.mp4" type="video/mp4">
       </video>
+      <canvas class="nexus-canvas" data-nexus aria-hidden="true"></canvas>
       <div class="hero-overlay"></div>
+      <div class="hero-datum" aria-hidden="true"><span>Quartz / Analog</span><span>Ref. GC-01</span><span>Brazil / 2026</span></div>
       <div class="hero-copy reveal">
         <p class="eyebrow">Relógio masculino GAIETY Classic</p>
         <h1>O detalhe que faz uma roupa simples parecer muito mais bem-vestida.</h1>
@@ -87,7 +90,7 @@
       <a class="scroll-cue" href="#classic"><span>Descobrir</span><i>↓</i></a>
     </section>
 
-    <section class="intro section" id="classic">
+    <section class="intro section" id="classic" data-chapter="01" data-chapter-title="Presença">
       <div class="two-columns">
         <div class="reveal"><p class="eyebrow green">GAIETY Classic</p><h2>Presença.<br>Sem exagero.</h2></div>
         <div class="intro-copy reveal">
@@ -98,7 +101,7 @@
       </div>
     </section>
 
-    <section class="cinematic" id="design">
+    <section class="cinematic" id="design" data-chapter="02" data-chapter-title="Design">
       <div class="cinematic-inner">
         <img src="f4b71847-8f05-45b0-93d9-bf0d51216aec.png" alt="Composição editorial hiper-realista do relógio GAIETY Classic" width="1086" height="1448" loading="lazy">
         <div class="cinematic-overlay"></div>
@@ -110,7 +113,35 @@
       </div>
     </section>
 
-    <section class="story section">
+    <section class="anatomy section" id="anatomia" data-chapter="03" data-chapter-title="Anatomia">
+      <header class="anatomy-heading reveal">
+        <p class="eyebrow">Anatomia do GAIETY</p>
+        <h2>Três elementos.<br>Uma única impressão.</h2>
+        <p>O efeito não vem de uma peça isolada. Mostrador, caixa e pulseira trabalham como um conjunto para criar uma presença clássica e discreta.</p>
+      </header>
+
+      <div class="holodex" aria-label="Anatomia visual do relógio GAIETY Classic">
+        <article class="holodex-card reveal" tabindex="0">
+          <img src="gaiety%202.png" alt="Detalhe do mostrador preto com algarismos romanos" width="1086" height="1448" loading="lazy">
+          <div class="holodex-shade"></div>
+          <div class="holodex-copy"><small>01 / Dial</small><h3>Mostrador romano</h3><p>O preto cria a base visual. Os algarismos tradicionais acrescentam uma leitura mais clássica e intencional.</p></div>
+        </article>
+
+        <article class="holodex-card reveal" tabindex="0">
+          <img src="f4b71847-8f05-45b0-93d9-bf0d51216aec.png" alt="Caixa metálica do relógio GAIETY Classic" width="1086" height="1448" loading="lazy">
+          <div class="holodex-shade"></div>
+          <div class="holodex-copy"><small>02 / Case</small><h3>Caixa metálica</h3><p>A liga de zinco recebe o contraste prateado que destaca o relógio sem transformar o conjunto em ostentação.</p></div>
+        </article>
+
+        <article class="holodex-card reveal" tabindex="0">
+          <img src="assets/gaiety-vintage-final.webp" alt="Prancha técnica destacando a pulseira escura do GAIETY Classic" width="1055" height="1491" loading="lazy">
+          <div class="holodex-shade"></div>
+          <div class="holodex-copy"><small>03 / Strap</small><h3>Pulseira escura</h3><p>O couro PU sintético completa a proposta casual e retrô com uma textura fácil de combinar.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="story section" data-chapter="04" data-chapter-title="Composição">
       <header class="section-heading reveal">
         <p class="eyebrow green">Uma impressão diferente</p>
         <h2>A mesma roupa.<br>Outro acabamento.</h2>
@@ -133,7 +164,7 @@
 
     <section class="marquee" aria-hidden="true"><div><span>GAIETY CLASSIC</span><i>•</i><span>PRESENÇA</span><i>•</i><span>ELEGÂNCIA DISCRETA</span><i>•</i><span>GAIETY CLASSIC</span><i>•</i><span>PRESENÇA</span><i>•</i><span>ELEGÂNCIA DISCRETA</span><i>•</i></div></section>
 
-    <section class="specs section" id="detalhes">
+    <section class="specs section" id="detalhes" data-chapter="05" data-chapter-title="Especificações">
       <div class="two-columns specs-grid">
         <div class="reveal"><p class="eyebrow green">Especificações</p><h2>Veja exatamente o que está comprando.</h2><p>Sem esconder informações importantes atrás de palavras vagas.</p></div>
         <dl class="spec-list reveal">
@@ -150,7 +181,23 @@
       <aside class="water-alert reveal"><strong>≈</strong><div><p class="eyebrow">Cuidado com água</p><h3>Resistente apenas a suor diário e respingos superficiais.</h3><p>Não use durante banhos, natação ou mergulho. O produto não é à prova d’água.</p></div></aside>
     </section>
 
-    <section class="offer" id="comprar">
+    <section class="trust-ledger section" id="registro" data-chapter="06" data-chapter-title="Registro">
+      <header class="trust-head reveal">
+        <div><p class="eyebrow green">Registro de compra</p><h2>Clareza antes do clique.</h2></div>
+        <div>Uma compra sofisticada não depende de esconder limitações. Ela depende de mostrar o produto, os materiais e as condições com precisão.</div>
+      </header>
+
+      <div class="trust-grid">
+        <article class="trust-item reveal" data-index="01"><h3>Materiais declarados</h3><p>Caixa em liga de zinco, pulseira em couro PU sintético e visor em vidro mineral.</p></article>
+        <article class="trust-item reveal" data-index="02"><h3>Bateria inclusa</h3><p>O movimento quartzo analógico acompanha bateria tipo botão já instalada.</p></article>
+        <article class="trust-item reveal" data-index="03"><h3>Envio rastreado</h3><p>O pedido acompanha código de rastreamento após o processamento do envio.</p></article>
+        <article class="trust-item reveal" data-index="04"><h3>Limite com água</h3><p>Indicado apenas para suor diário e pequenos respingos. Não é apropriado para banho ou imersão.</p></article>
+        <article class="trust-item reveal" data-index="05"><h3>Compra online</h3><p>Em caso de desistência, o atendimento seguirá o prazo legal aplicável às compras realizadas pela internet.</p></article>
+        <article class="trust-item reveal" data-index="06"><h3>Atendimento posterior</h3><p>O suporte continua disponível após a compra para orientar sobre pedido, envio e produto.</p></article>
+      </div>
+    </section>
+
+    <section class="offer" id="comprar" data-chapter="07" data-chapter-title="Aquisição">
       <div class="offer-image"><img src="f4b71847-8f05-45b0-93d9-bf0d51216aec.png" alt="Relógio GAIETY Classic em destaque" width="1086" height="1448" loading="lazy"></div>
       <div class="offer-copy reveal">
         <p class="eyebrow green">GAIETY Classic</p>
@@ -163,9 +210,9 @@
       </div>
     </section>
 
-    <section class="promise section"><div class="promise-copy reveal"><p class="eyebrow green">Compra consciente</p><h2>Veja o relógio no seu próprio pulso.</h2><p>Receba o produto, confira o tamanho, o acabamento e como ele combina com seu estilo. Caso desista da compra, solicite atendimento dentro do prazo legal aplicável às compras online.</p></div></section>
+    <section class="promise section" data-chapter="08" data-chapter-title="Compra consciente"><div class="promise-copy reveal"><p class="eyebrow green">Compra consciente</p><h2>Veja o relógio no seu próprio pulso.</h2><p>Receba o produto, confira o tamanho, o acabamento e como ele combina com seu estilo. Caso desista da compra, solicite atendimento dentro do prazo legal aplicável às compras online.</p></div></section>
 
-    <section class="faq section" id="duvidas">
+    <section class="faq section" id="duvidas" data-chapter="09" data-chapter-title="Dúvidas">
       <div class="faq-title reveal"><p class="eyebrow">Dúvidas</p><h2>Antes de escolher,<br>confira o que importa.</h2></div>
       <div class="faq-list reveal">
         <details><summary>O relógio é muito grande?<span>+</span></summary><p>O diâmetro médio varia entre aproximadamente 35 e 41 mm, dependendo da variação do lote. A percepção final também depende da largura do pulso.</p></details>
@@ -179,12 +226,13 @@
 
   <footer>
     <div class="footer-brand"><span class="brand-mark">G</span><strong>GAIETY</strong><p>Elegância clássica. Estilo atemporal.</p></div>
-    <div class="footer-links"><div><h3>Descobrir</h3><a href="#classic">GAIETY Classic</a><a href="#design">Design</a><a href="#detalhes">Especificações</a></div><div><h3>Atendimento</h3><a href="#duvidas">Perguntas frequentes</a><a href="#">Trocas e devoluções</a><a href="#">Contato</a></div><div><h3>Legal</h3><a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Cookies</a></div></div>
+    <div class="footer-links"><div><h3>Descobrir</h3><a href="#classic">GAIETY Classic</a><a href="#design">Design</a><a href="#anatomia">Anatomia</a><a href="#detalhes">Especificações</a></div><div><h3>Atendimento</h3><a href="#duvidas">Perguntas frequentes</a><a href="#">Trocas e devoluções</a><a href="#">Contato</a></div><div><h3>Legal</h3><a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Cookies</a></div></div>
     <div class="footer-bottom"><span>© <span id="year"></span> GAIETY Classic</span><span>Brasil · Português</span></div>
   </footer>
 
   <div class="mobile-buy"><div><span>GAIETY Classic</span><strong>R$ 297,00</strong></div><a href="#comprar">Comprar</a></div>
 
+  <script src="ds-completion.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
