@@ -1,0 +1,76 @@
+/*
+  GAIETY copy safety layer
+  Text is never dependent on JavaScript, observers or motion classes.
+*/
+
+.reveal,
+.reveal.is-visible,
+html.motion-ready .reveal,
+html.motion-ready .reveal.is-visible,
+html.ds-motion-active .reveal,
+html.ds-motion-active .reveal.ds-animate,
+html.ds-motion-active .reveal.ds-animate.is-visible,
+html.ds-motion-active .reveal.ds-animate:not(.is-visible) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+.word-mask,
+html.ds-motion-active .word-mask {
+  overflow: visible !important;
+}
+
+.word-inner,
+html.ds-motion-active .word-inner,
+html.ds-motion-active .is-visible .word-inner,
+html.ds-motion-active body.is-loaded .hero-copy .word-inner {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Preserve layout transforms that are structural rather than decorative. */
+.cinematic-copy.reveal,
+.cinematic-copy.reveal.is-visible,
+html.motion-ready .cinematic-copy.reveal,
+html.ds-motion-active .cinematic-copy.reveal {
+  transform: translateY(-50%) !important;
+}
+
+/* The base stylesheet gives reveal elements an entrance offset. Remove it safely
+   from regular content while leaving the holodex 3D composition untouched. */
+.reveal:not(.cinematic-copy):not(.holodex-card) {
+  transform: none !important;
+}
+
+/* Copy remains available even when scripts are blocked or fail. */
+.hero-copy,
+.intro-copy,
+.cinematic-copy,
+.anatomy-heading,
+.holodex-copy,
+.section-heading,
+.text-card > div,
+.card-caption,
+.specs-grid,
+.water-alert,
+.trust-head,
+.trust-item,
+.offer-copy,
+.promise-copy,
+.faq-title,
+.faq-list,
+.footer-brand,
+.footer-links,
+.footer-bottom {
+  visibility: visible !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .word-inner {
+    transition: none !important;
+    animation: none !important;
+  }
+}
