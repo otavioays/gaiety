@@ -66,7 +66,6 @@
     const attribution = currentAttribution();
 
     url.searchParams.set("ref", "gaiety-landing");
-    url.searchParams.set("channel", "buy_button");
     setCartAttribute(url, "ct_origin", "gaiety-landing");
     setCartAttribute(url, "ct_visitor_id", tracker?.visitorId);
     setCartAttribute(url, "ct_session_id", tracker?.sessionId);
