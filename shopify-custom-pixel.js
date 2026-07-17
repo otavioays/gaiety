@@ -43,17 +43,24 @@ function gaietyUuid() {
     /[xy]/g,
     function (character) {
       var random = Math.floor(Math.random() * 16);
-      var value = character === "x" ? random : (random & 3) | 8;
+      var value = random;
+
+      if (character !== "x") {
+        value = (random & 3) | 8;
+      }
+
       return value.toString(16);
-    },
+    }
   );
 }
 
 function gaietyAttributes(checkout) {
   var output = {};
-  var attributes = checkout && Array.isArray(checkout.attributes)
-    ? checkout.attributes
-    : [];
+  var attributes = [];
+
+  if (checkout && Array.isArray(checkout.attributes)) {
+    attributes = checkout.attributes;
+  }
 
   attributes.forEach(function (attribute) {
     if (
@@ -77,7 +84,7 @@ function gaietySafeUrl(event, fallback) {
   var candidate = gaietyGet(
     event,
     "context.document.location.href",
-    fallback,
+    fallback
   );
 
   try {
@@ -102,9 +109,11 @@ function gaietyDeviceType(event) {
 }
 
 function gaietyLineItems(checkout) {
-  var lineItems = checkout && Array.isArray(checkout.lineItems)
-    ? checkout.lineItems
-    : [];
+  var lineItems = [];
+
+  if (checkout && Array.isArray(checkout.lineItems)) {
+    lineItems = checkout.lineItems;
+  }
 
   return lineItems.slice(0, 20).map(function (item) {
     return {
@@ -115,7 +124,7 @@ function gaietyLineItems(checkout) {
         gaietyGet(item, "title", null),
       variant_title: gaietyGet(item, "variant.title", null),
       quantity: Number(gaietyGet(item, "quantity", 0)),
-      price: gaietyGet(item, "variant.price.amount", null),
+      price: gaietyGet(item, "variant.price.amount", null)
     };
   });
 }
@@ -129,8 +138,8 @@ function gaietySend(eventName, event) {
   var pageUrl;
   var pagePath = "/";
   var parsed;
-  var totalPrice;
-  var order;
+  var totalPrice = {};
+  var order = {};
   var orderId;
   var payload;
 
@@ -155,8 +164,14 @@ function gaietySend(eventName, event) {
     pagePath = "/";
   }
 
-  totalPrice = checkout && checkout.totalPrice ? checkout.totalPrice : {};
-  order = checkout && checkout.order ? checkout.order : {};
+  if (checkout && checkout.totalPrice) {
+    totalPrice = checkout.totalPrice;
+  }
+
+  if (checkout && checkout.order) {
+    order = checkout.order;
+  }
+
   orderId = order.id || order.name || checkout.token || null;
 
   payload = {
@@ -188,8 +203,8 @@ function gaietySend(eventName, event) {
       order_id: orderId,
       value: totalPrice.amount || null,
       currency: totalPrice.currencyCode || "BRL",
-      line_items: gaietyLineItems(checkout),
-    },
+      line_items: gaietyLineItems(checkout)
+    }
   };
 
   return fetch(GAIETY_TRACKING_ENDPOINT, {
@@ -198,9 +213,9 @@ function gaietySend(eventName, event) {
     credentials: "omit",
     keepalive: true,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   }).catch(function () {
     return undefined;
   });
