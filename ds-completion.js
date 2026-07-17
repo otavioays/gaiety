@@ -1,3 +1,165 @@
+(function installShopifyTrackingBridge() {
+  "use strict";
+
+  const CHECKOUT_BASE = "https://gaiety-6507.myshopify.com/cart/64213500100977:1";
+  const FIRST_TOUCH_KEY = "fbads_conversion_tracker_first_touch";
+  const SESSION_ATTRIBUTION_KEY = "fbads_conversion_tracker_session_attribution";
+
+  function parseStoredJson(storage, key) {
+    try {
+      const value = storage.getItem(key);
+      return value ? JSON.parse(value) : {};
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  function attribution() {
+    const params = new URLSearchParams(window.location.search);
+    const firstTouch = parseStoredJson(window.localStorage, FIRST_TOUCH_KEY);
+    const sessionTouch = parseStoredJson(window.sessionStorage, SESSION_ATTRIBUTION_KEY);
+    const current = {};
+
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"].forEach((key) => {
+      const value = params.get(key);
+      if (value) current[key] = value;
+    });
+
+    return Object.assign({}, firstTouch, sessionTouch, current);
+  }
+
+  function urlSafeBase64(value) {
+    const bytes = new TextEncoder().encode(value);
+    let binary = "";
+
+    bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  }
+
+  function setAttribute(url, key, value) {
+    if (value === null || value === undefined || value === "") return;
+    url.searchParams.set(`attributes[${key}]`, String(value).slice(0, 240));
+  }
+
+  function buildCheckoutUrl(tracker) {
+    const url = new URL(CHECKOUT_BASE);
+    const source = attribution();
+    const identity = {
+      _ct_visitor_id: tracker?.visitorId || "",
+      _ct_session_id: tracker?.sessionId || "",
+      _ct_utm_source: source.utm_source || "",
+      _ct_utm_medium: source.utm_medium || "",
+      _ct_utm_campaign: source.utm_campaign || "",
+      _ct_utm_content: source.utm_content || "",
+      _ct_utm_term: source.utm_term || "",
+      _ct_fbclid: source.fbclid || "",
+    };
+
+    url.searchParams.set("ref", "gaiety-landing");
+    setAttribute(url, "ct_origin", "gaiety-landing");
+    setAttribute(url, "ct_visitor_id", identity._ct_visitor_id);
+    setAttribute(url, "ct_session_id", identity._ct_session_id);
+    setAttribute(url, "ct_utm_source", identity._ct_utm_source);
+    setAttribute(url, "ct_utm_medium", identity._ct_utm_medium);
+    setAttribute(url, "ct_utm_campaign", identity._ct_utm_campaign);
+    setAttribute(url, "ct_utm_content", identity._ct_utm_content);
+    setAttribute(url, "ct_utm_term", identity._ct_utm_term);
+    setAttribute(url, "ct_fbclid", identity._ct_fbclid);
+    url.searchParams.set("properties", urlSafeBase64(JSON.stringify(identity)));
+
+    return url.toString();
+  }
+
+  function isCheckoutLink(link) {
+    if (!(link instanceof HTMLAnchorElement)) return false;
+
+    try {
+      const url = new URL(link.href, window.location.href);
+      return url.hostname === "gaiety-6507.myshopify.com" && url.pathname.startsWith("/cart/64213500100977:1");
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function placement(link) {
+    if (link.classList.contains("header-buy")) return "header";
+    if (link.classList.contains("hero-buy-primary")) return "hero";
+    if (link.classList.contains("buy-button")) return "offer";
+    if (link.closest(".mobile-buy")) return "mobile_sticky";
+    if (link.classList.contains("desktop-buy-dock")) return "desktop_dock";
+    if (link.closest(".menu-panel")) return "menu";
+    return "unknown";
+  }
+
+  function waitForTracker() {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const check = () => {
+        if (window.ConversionTracker) {
+          resolve(window.ConversionTracker);
+          return;
+        }
+        attempts += 1;
+        if (attempts >= 30) {
+          resolve(null);
+          return;
+        }
+        window.setTimeout(check, 50);
+      };
+      check();
+    });
+  }
+
+  window.addEventListener(
+    "pointerdown",
+    (event) => {
+      const link = event.target?.closest?.("a");
+      if (!isCheckoutLink(link) || !window.ConversionTracker) return;
+      link.href = buildCheckoutUrl(window.ConversionTracker);
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "click",
+    (event) => {
+      const link = event.target?.closest?.("a");
+      if (!isCheckoutLink(link)) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      waitForTracker().then((tracker) => {
+        const destination = buildCheckoutUrl(tracker);
+        const properties = {
+          product_id: "gaiety-classic",
+          variant_id: "64213500100977",
+          product_name: "GAIETY Classic",
+          price: 169,
+          currency: "BRL",
+          quantity: 1,
+          placement: placement(link),
+          cart_method: "shopify_cart_permalink_with_properties",
+        };
+
+        if (!tracker) {
+          window.location.assign(destination);
+          return;
+        }
+
+        Promise.all([
+          tracker.track("buy_button_click", properties),
+          tracker.track("add_to_cart", properties),
+        ]).finally(() => window.location.assign(destination));
+      });
+    },
+    true,
+  );
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.documentElement;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
