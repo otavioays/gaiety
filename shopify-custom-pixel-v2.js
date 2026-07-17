@@ -62,6 +62,64 @@ function gaietyAttributes(checkout) {
   return output;
 }
 
+function gaietyLineItemTracking(checkout) {
+  var output = {};
+  var items = [];
+  var itemIndex;
+  var propertyIndex;
+  var properties;
+  var property;
+  var key;
+
+  if (checkout && Array.isArray(checkout.lineItems)) {
+    items = checkout.lineItems;
+  }
+
+  for (itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+    properties = [];
+
+    if (items[itemIndex] && Array.isArray(items[itemIndex].properties)) {
+      properties = items[itemIndex].properties;
+    }
+
+    for (propertyIndex = 0; propertyIndex < properties.length; propertyIndex += 1) {
+      property = properties[propertyIndex];
+
+      if (!property || !property.key || property.value === undefined || property.value === null) {
+        continue;
+      }
+
+      key = String(property.key);
+      if (key.indexOf("_ct_") === 0) {
+        output[key.slice(1)] = String(property.value);
+      }
+    }
+  }
+
+  return output;
+}
+
+function gaietyAttribution(checkout) {
+  var lineItemValues = gaietyLineItemTracking(checkout);
+  var cartValues = gaietyAttributes(checkout);
+  var output = {};
+  var key;
+
+  for (key in lineItemValues) {
+    if (Object.prototype.hasOwnProperty.call(lineItemValues, key)) {
+      output[key] = lineItemValues[key];
+    }
+  }
+
+  for (key in cartValues) {
+    if (Object.prototype.hasOwnProperty.call(cartValues, key)) {
+      output[key] = cartValues[key];
+    }
+  }
+
+  return output;
+}
+
 function gaietyDeviceType(event) {
   var width = Number(gaietyGet(event, "context.window.innerWidth", 0));
 
@@ -103,7 +161,7 @@ function gaietyLineItems(checkout) {
 
 function gaietySend(eventName, event) {
   var checkout = gaietyGet(event, "data.checkout", {});
-  var attributes = gaietyAttributes(checkout);
+  var attributes = gaietyAttribution(checkout);
   var visitorId = gaietyUuid();
   var sessionId = gaietyUuid();
   var fallbackUrl = "https://gaiety-6507.myshopify.com/checkouts";
@@ -112,14 +170,17 @@ function gaietySend(eventName, event) {
   var totalPrice = {};
   var order = {};
   var orderId;
+  var attributionSource = "generated";
   var payload;
 
   if (gaietyValidUuid(attributes.ct_visitor_id)) {
     visitorId = attributes.ct_visitor_id;
+    attributionSource = "shopify_tracking_properties";
   }
 
   if (gaietyValidUuid(attributes.ct_session_id)) {
     sessionId = attributes.ct_session_id;
+    attributionSource = "shopify_tracking_properties";
   }
 
   if (eventName === "purchase") {
@@ -160,6 +221,8 @@ function gaietySend(eventName, event) {
     language: gaietyGet(event, "context.navigator.language", null),
     properties: {
       source: "shopify_custom_pixel",
+      attribution_source: attributionSource,
+      shopify_client_id: gaietyGet(event, "clientId", null),
       shopify_event_id: gaietyGet(event, "id", null),
       checkout_token: checkout.token || null,
       order_id: orderId,
