@@ -1,3 +1,241 @@
+(function installGaietyConversionTracking() {
+  "use strict";
+
+  const TRACKER_SRC = "https://analise-de-dados-fbads.vercel.app/tracker.js";
+  const CHECKOUT_BASE = "https://gaiety-6507.myshopify.com/cart/64213500100977:1";
+  const PRODUCT = {
+    product_id: "gaiety-classic",
+    variant_id: "64213500100977",
+    product_name: "GAIETY Classic",
+    price: 169,
+    currency: "BRL",
+    quantity: 1,
+  };
+
+  function parseJson(value) {
+    if (!value) return {};
+
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? parsed
+        : {};
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  function readStorage(storage, key) {
+    try {
+      return storage.getItem(key);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function currentAttribution() {
+    const params = new URLSearchParams(window.location.search);
+    const current = {
+      utm_source: params.get("utm_source"),
+      utm_medium: params.get("utm_medium"),
+      utm_campaign: params.get("utm_campaign"),
+      utm_content: params.get("utm_content"),
+      utm_term: params.get("utm_term"),
+      fbclid: params.get("fbclid"),
+    };
+    const session = parseJson(
+      readStorage(
+        window.sessionStorage,
+        "fbads_conversion_tracker_session_attribution",
+      ),
+    );
+    const firstTouch = parseJson(
+      readStorage(window.localStorage, "fbads_conversion_tracker_first_touch"),
+    );
+
+    return Object.assign({}, firstTouch, session, current);
+  }
+
+  function setCartAttribute(url, key, value) {
+    if (value === null || value === undefined || value === "") return;
+    url.searchParams.set(`attributes[${key}]`, String(value).slice(0, 240));
+  }
+
+  function checkoutUrl(tracker) {
+    const url = new URL(CHECKOUT_BASE);
+    const attribution = currentAttribution();
+
+    url.searchParams.set("ref", "gaiety-landing");
+    url.searchParams.set("channel", "buy_button");
+    setCartAttribute(url, "ct_origin", "gaiety-landing");
+    setCartAttribute(url, "ct_visitor_id", tracker?.visitorId);
+    setCartAttribute(url, "ct_session_id", tracker?.sessionId);
+    setCartAttribute(url, "ct_utm_source", attribution.utm_source);
+    setCartAttribute(url, "ct_utm_medium", attribution.utm_medium);
+    setCartAttribute(url, "ct_utm_campaign", attribution.utm_campaign);
+    setCartAttribute(url, "ct_utm_content", attribution.utm_content);
+    setCartAttribute(url, "ct_utm_term", attribution.utm_term);
+    setCartAttribute(url, "ct_fbclid", attribution.fbclid);
+
+    return url.toString();
+  }
+
+  function placementFor(link) {
+    if (link.classList.contains("header-buy")) return "header";
+    if (link.classList.contains("hero-buy-primary")) return "hero";
+    if (link.classList.contains("buy-button")) return "offer";
+    if (link.closest(".mobile-buy")) return "mobile_sticky";
+    if (link.classList.contains("desktop-buy-dock")) return "desktop_dock";
+    if (link.closest(".menu-panel")) return "menu";
+    return "unknown";
+  }
+
+  function eventProperties(link) {
+    return Object.assign({}, PRODUCT, {
+      placement: placementFor(link),
+      element_text: (link.textContent || "").trim().slice(0, 200) || null,
+      element_class: link.className || null,
+      cart_method: "shopify_cart_permalink",
+    });
+  }
+
+  function loadTracker() {
+    if (window.ConversionTracker) {
+      return Promise.resolve(window.ConversionTracker);
+    }
+
+    if (window.__gaietyConversionTrackerPromise) {
+      return window.__gaietyConversionTrackerPromise;
+    }
+
+    window.__gaietyConversionTrackerPromise = new Promise((resolve) => {
+      const existing = document.querySelector(`script[src="${TRACKER_SRC}"]`);
+      const script = existing || document.createElement("script");
+      let attempts = 0;
+
+      const finishWhenReady = () => {
+        if (window.ConversionTracker) {
+          resolve(window.ConversionTracker);
+          return;
+        }
+
+        attempts += 1;
+        if (attempts >= 30) {
+          resolve(null);
+          return;
+        }
+
+        window.setTimeout(finishWhenReady, 50);
+      };
+
+      if (!existing) {
+        script.src = TRACKER_SRC;
+        script.async = true;
+        script.dataset.debug = "false";
+        script.addEventListener("load", finishWhenReady, { once: true });
+        script.addEventListener("error", () => resolve(null), { once: true });
+        document.head.appendChild(script);
+      } else {
+        finishWhenReady();
+      }
+    });
+
+    return window.__gaietyConversionTrackerPromise;
+  }
+
+  function isCheckoutLink(link) {
+    if (!(link instanceof HTMLAnchorElement)) return false;
+
+    try {
+      const url = new URL(link.href, window.location.href);
+      return (
+        url.hostname === "gaiety-6507.myshopify.com" &&
+        url.pathname.startsWith("/cart/64213500100977:1")
+      );
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function navigateOnce(link, destination) {
+    if (link.dataset.trackingNavigationStarted === "true") return;
+    link.dataset.trackingNavigationStarted = "true";
+    window.location.assign(destination);
+  }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      const link = target.closest("a");
+      if (!isCheckoutLink(link) || !window.ConversionTracker) return;
+      link.href = checkoutUrl(window.ConversionTracker);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+
+      const link = target.closest("a");
+      if (!isCheckoutLink(link)) return;
+
+      const modifiedClick =
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey;
+
+      if (modifiedClick) {
+        const tracker = window.ConversionTracker;
+        if (tracker) {
+          link.href = checkoutUrl(tracker);
+          const properties = eventProperties(link);
+          tracker.track("buy_button_click", properties);
+          tracker.track("add_to_cart", properties);
+        }
+        return;
+      }
+
+      event.preventDefault();
+      if (link.dataset.trackingPending === "true") return;
+      link.dataset.trackingPending = "true";
+
+      let destination = link.href || CHECKOUT_BASE;
+      const fallbackTimer = window.setTimeout(() => {
+        navigateOnce(link, destination);
+      }, 900);
+
+      loadTracker()
+        .then((tracker) => {
+          destination = checkoutUrl(tracker);
+          link.href = destination;
+
+          if (!tracker) return null;
+
+          const properties = eventProperties(link);
+          return Promise.all([
+            tracker.track("buy_button_click", properties),
+            tracker.track("add_to_cart", properties),
+          ]);
+        })
+        .catch(() => null)
+        .finally(() => {
+          window.clearTimeout(fallbackTimer);
+          navigateOnce(link, destination);
+        });
+    },
+    true,
+  );
+
+  loadTracker();
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.documentElement;
   const body = document.body;
