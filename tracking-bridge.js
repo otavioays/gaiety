@@ -1,3 +1,0 @@
-(function installGaietyTrackingBridge() {
-  "use strict";
-})();
