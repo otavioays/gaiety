@@ -945,7 +945,7 @@ input:focus-visible {
 .legacy-origin-image {
   position: relative;
   width: min(100%, 390px);
-  aspect-ratio: 381 / 330;
+  aspect-ratio: 1 / 1;
   margin: 0;
   justify-self: start;
 }
