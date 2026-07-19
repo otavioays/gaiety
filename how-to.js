@@ -12,6 +12,7 @@
 
   loadStylesheet("ingredient-grid.css?v=ritual-1", "data-ingredient-grid-style");
   loadStylesheet("how-to.css?v=ritual-1", "data-how-to-style");
+  loadStylesheet("trim-after-how-to.css?v=ritual-1", "data-trim-after-how-to-style");
 
   if (!document.querySelector("#ingredientes-em-destaque")) {
     const blendSection = document.createElement("section");
