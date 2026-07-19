@@ -1,510 +1,125 @@
-/* NovaChain-inspired motion layer for the existing GAIETY layout.
-   This file adds movement and depth without changing the page structure. */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-enabled .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 650ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 
-:root {
-  --motion-ease: cubic-bezier(.25, 1, .5, 1);
-  --motion-ease-soft: cubic-bezier(.16, 1, .3, 1);
-  --motion-green: 0, 96, 57;
-  --motion-gold: 213, 178, 107;
-}
-
-html.motion-ready { scroll-behavior: smooth; }
-
-.motion-grid,
-.cursor-orb,
-.scroll-progress {
-  position: fixed;
-  pointer-events: none;
-  z-index: 58;
-}
-
-.motion-grid {
-  inset: 0;
-  z-index: 2;
-  opacity: .035;
-  background-image:
-    linear-gradient(to right, rgba(0, 96, 57, .42) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 96, 57, .42) 1px, transparent 1px),
-    repeating-linear-gradient(-45deg, transparent 0 7px, rgba(0, 0, 0, .08) 7px 8px);
-  background-size: 80px 80px, 80px 80px, 12px 12px;
-  background-position: var(--grid-x, 50%) var(--grid-y, 50%);
-  -webkit-mask-image: radial-gradient(circle at var(--cursor-x, 50%) var(--cursor-y, 50%), #000 0, transparent 58%);
-  mask-image: radial-gradient(circle at var(--cursor-x, 50%) var(--cursor-y, 50%), #000 0, transparent 58%);
-  transition: opacity .5s ease;
-}
-
-.cursor-orb {
-  left: 0;
-  top: 0;
-  z-index: 57;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  opacity: 0;
-  transform: translate3d(calc(var(--cursor-x-px, -500px) - 50%), calc(var(--cursor-y-px, -500px) - 50%), 0);
-  background: radial-gradient(circle, rgba(var(--motion-green), .09), rgba(var(--motion-gold), .035) 28%, transparent 68%);
-  filter: blur(2px);
-  transition: opacity .35s ease;
-  will-change: transform;
-}
-
-html.has-fine-pointer .cursor-orb { opacity: 1; }
-
-.scroll-progress {
-  inset: 0 0 auto;
-  z-index: 150;
-  height: 2px;
-  transform: scaleX(var(--scroll-progress, 0));
-  transform-origin: left center;
-  background: linear-gradient(90deg, #006039, #d5b26b);
-  box-shadow: 0 0 14px rgba(var(--motion-green), .28);
-  will-change: transform;
-}
-
-/* Clip, blur and scale reveal taken from the DS motion grammar. */
-html.motion-ready .reveal {
-  --reveal-y: 42px;
-  --reveal-scale: .975;
-  opacity: 0;
-  filter: blur(10px);
-  transform: translate3d(0, var(--reveal-y), 0) scale(var(--reveal-scale));
-  clip-path: inset(100% 0 0 0);
-  transition:
-    opacity 1s var(--motion-ease),
-    filter 1s var(--motion-ease),
-    transform 1s var(--motion-ease),
-    clip-path 1s var(--motion-ease);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, filter, transform, clip-path;
-}
-
-html.motion-ready .reveal.is-visible {
-  --reveal-y: 0px;
-  --reveal-scale: 1;
-  opacity: 1;
-  filter: blur(0);
-  clip-path: inset(-8% -8% -8% -8%);
-}
-
-.word-mask {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  padding-bottom: .06em;
-  margin-bottom: -.06em;
-}
-
-.word-inner {
-  display: inline-block;
-  transform: translate3d(0, 112%, 0) rotate(.5deg);
-  transform-origin: bottom left;
-  transition: transform .85s var(--motion-ease);
-  transition-delay: calc(var(--word-index, 0) * 42ms + var(--word-base-delay, 80ms));
-  will-change: transform;
-}
-
-.is-visible .word-inner,
-.hero-copy.is-visible .word-inner,
-body.is-loaded .hero-copy .word-inner {
-  transform: translate3d(0, 0, 0) rotate(0);
-}
-
-/* Cinematic first paint. The layout stays untouched; only the image is unveiled. */
-html.motion-ready .hero-image {
-  --hero-y: 0px;
-  --hero-scale: 1.07;
-  animation: none !important;
-  opacity: .3;
-  filter: blur(11px) saturate(.82);
-  clip-path: inset(0 0 100% 0);
-  transform: translate3d(0, var(--hero-y), 0) scale(var(--hero-scale));
-  transition:
-    opacity 1.45s var(--motion-ease),
-    filter 1.45s var(--motion-ease),
-    clip-path 1.45s var(--motion-ease),
-    transform .2s linear;
-  will-change: transform, clip-path, filter;
-}
-
-html.motion-ready body.is-loaded .hero-image {
-  opacity: 1;
-  filter: blur(0) saturate(1);
-  clip-path: inset(0 0 0 0);
-}
-
-html.motion-ready .hero-overlay {
-  opacity: 0;
-  transition: opacity 1.3s ease .25s;
-}
-
-html.motion-ready body.is-loaded .hero-overlay { opacity: 1; }
-
-html.motion-ready .hero-copy {
-  transition-delay: .25s;
-}
-
-.scroll-cue i {
-  position: relative;
-  overflow: hidden;
-  animation: cue-breathe 2.4s ease-in-out infinite;
-}
-
-.scroll-cue i::after {
-  content: "";
-  position: absolute;
-  inset: -30%;
-  background: linear-gradient(115deg, transparent 36%, rgba(255,255,255,.35), transparent 64%);
-  transform: translateX(-100%) rotate(10deg);
-  animation: cue-sheen 3.4s ease-in-out infinite 1s;
-}
-
-@keyframes cue-breathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-
-@keyframes cue-sheen {
-  0%, 55% { transform: translateX(-110%) rotate(10deg); }
-  82%, 100% { transform: translateX(110%) rotate(10deg); }
-}
-
-/* Reactive header and menu motion. */
-.site-header {
-  will-change: transform, background-color, color, box-shadow;
-  transition:
-    transform .45s var(--motion-ease),
-    background-color .35s ease,
-    color .35s ease,
-    box-shadow .35s ease,
-    height .35s var(--motion-ease) !important;
-}
-
-.site-header::after {
-  content: "";
-  position: absolute;
-  left: clamp(18px, 3vw, 52px);
-  right: clamp(18px, 3vw, 52px);
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, currentColor 50%, transparent);
-  opacity: 0;
-  transform: scaleX(.3);
-  transition: opacity .35s ease, transform .55s var(--motion-ease);
-}
-
-.site-header.is-solid::after { opacity: .12; transform: scaleX(1); }
-.site-header.is-hidden { transform: translateY(-105%); }
-
-.menu-panel {
-  overflow: hidden;
-}
-
-.menu-panel::before,
-.menu-panel::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-}
-
-.menu-panel::before {
-  inset: 0;
-  opacity: .08;
-  background-image:
-    linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px),
-    repeating-linear-gradient(-45deg, transparent 0 5px, rgba(255,255,255,.045) 5px 6px);
-  background-size: 80px 80px, 80px 80px, 10px 10px;
-}
-
-.menu-panel::after {
-  width: 420px;
-  height: 420px;
-  right: -220px;
-  bottom: -180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(213,178,107,.16), transparent 68%);
-  filter: blur(8px);
-}
-
-.menu-panel nav a {
-  position: relative;
-  z-index: 1;
-  opacity: 0;
-  transform: translate3d(-32px, 0, 0);
-  filter: blur(5px);
-  transition:
-    opacity .7s var(--motion-ease),
-    transform .7s var(--motion-ease),
-    filter .7s var(--motion-ease),
-    padding-left .25s,
-    color .25s !important;
-  transition-delay: calc(var(--menu-index, 0) * 65ms + 80ms);
-}
-
-.menu-panel.is-open nav a {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  filter: blur(0);
-}
-
-.menu-icon i {
-  transform-origin: center;
-  transition: transform .35s var(--motion-ease), width .35s var(--motion-ease);
-}
-
-.menu-button:hover .menu-icon i:first-child { transform: translateX(3px); }
-.menu-button:hover .menu-icon i:last-child { transform: translateX(-3px); }
-
-.brand-mark {
-  transition: transform .6s var(--motion-ease), box-shadow .6s ease;
-}
-
-.brand:hover .brand-mark,
-.footer-brand:hover .brand-mark {
-  transform: rotate(225deg) scale(1.05);
-  box-shadow: 0 0 0 8px rgba(var(--motion-green), .06);
-}
-
-/* DS-style holodex depth on the existing bento, with no grid changes. */
-.bento {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-
-.bento > * {
-  --tilt-x: 0deg;
-  --tilt-y: 0deg;
-  --card-lift: 0px;
-  --card-scale: 1;
-  transform: translate3d(0, var(--card-lift), 0) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(var(--card-scale));
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  transition:
-    transform .65s var(--motion-ease),
-    opacity .45s ease,
-    box-shadow .65s var(--motion-ease),
-    border-color .35s ease;
-  will-change: transform;
-}
-
-@media (hover:hover) and (min-width:901px) {
-  .bento:hover > * { opacity: .7; --card-scale: .985; }
-  .bento > *:hover {
+  html.motion-enabled .reveal.is-visible {
     opacity: 1;
-    --card-lift: -9px;
-    --card-scale: 1.012;
-    z-index: 5;
-    box-shadow: 0 34px 75px -24px rgba(0,0,0,.42), inset 0 1px rgba(255,255,255,.12);
+    transform: translateY(0);
+  }
+
+  html.motion-enabled .ritual-steps .reveal:nth-child(2),
+  html.motion-enabled .proof-grid .reveal:nth-child(2) {
+    transition-delay: 70ms;
+  }
+
+  html.motion-enabled .ritual-steps .reveal:nth-child(3),
+  html.motion-enabled .proof-grid .reveal:nth-child(3) {
+    transition-delay: 140ms;
+  }
+
+  html.motion-enabled .ritual-steps .reveal:nth-child(4),
+  html.motion-enabled .proof-grid .reveal:nth-child(4) {
+    transition-delay: 210ms;
+  }
+
+  html.motion-enabled .ritual-steps .reveal:nth-child(5),
+  html.motion-enabled .proof-grid .reveal:nth-child(5) {
+    transition-delay: 280ms;
+  }
+
+  html.motion-enabled .proof-grid .reveal:nth-child(6) {
+    transition-delay: 350ms;
+  }
+
+  .status-pill span {
+    animation: status-pulse 2.2s ease-in-out infinite;
+  }
+
+  .dock-status > span {
+    animation: status-pulse 2.2s ease-in-out infinite;
+  }
+
+  .product-stage {
+    animation: product-float 5s ease-in-out infinite;
+  }
+
+  .patch-disc--one {
+    animation: disc-float-one 4.2s ease-in-out infinite;
+  }
+
+  .patch-disc--two {
+    animation: disc-float-two 3.8s ease-in-out infinite;
+  }
+
+  .visual-spark--one {
+    animation: spark-spin 8s linear infinite;
+  }
+
+  .visual-spark--two {
+    animation: spark-spin-small 7s linear infinite reverse;
+  }
+
+  .closing::before {
+    animation: closing-blob 11s ease-in-out infinite alternate;
+  }
+
+  .cta-button b,
+  .cta-button > span + b {
+    transition: transform 180ms ease;
+  }
+
+  .cta-button:hover b,
+  .cta-button:hover > span + b {
+    transform: translateX(4px);
   }
 }
 
-.text-card {
-  box-shadow: inset 0 1px rgba(255,255,255,.12), inset 0 -24px 50px rgba(0,0,0,.04);
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 5px rgba(255, 184, 0, 0.16); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 9px rgba(255, 184, 0, 0.05); }
 }
 
-.media-card::after,
-.offer-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(112deg, transparent 28%, rgba(255,255,255,.16) 48%, transparent 68%);
-  transform: translateX(-110%);
-  transition: transform 1s var(--motion-ease), opacity .4s ease;
+@keyframes product-float {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
+  50% { transform: translate(-50%, calc(-50% - 10px)) rotate(0deg); }
 }
 
-.media-card:hover::after,
-.offer-image:hover::after {
-  opacity: .7;
-  transform: translateX(110%);
+@keyframes disc-float-one {
+  0%, 100% { transform: rotate(9deg) translateY(0); }
+  50% { transform: rotate(14deg) translateY(-10px); }
 }
 
-.card-caption,
-.text-card > div {
-  transform: translateZ(34px);
+@keyframes disc-float-two {
+  0%, 100% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(-4deg) translateY(8px); }
 }
 
-/* Parallax targets, updated with CSS variables by JS. */
-.cinematic-inner > img {
-  --cinematic-y: 0px;
-  --cinematic-scale: 1.32;
-  transform: translate3d(0, var(--cinematic-y), 0) scale(var(--cinematic-scale)) !important;
-  will-change: transform;
+@keyframes spark-spin {
+  to { transform: rotate(382deg); }
 }
 
-.offer-image img {
-  --offer-y: 0px;
-  --offer-scale: 1.045;
-  transform: translate3d(0, var(--offer-y), 0) scale(var(--offer-scale));
-  transition: transform .16s linear;
-  will-change: transform;
+@keyframes spark-spin-small {
+  to { transform: scale(0.65) rotate(397deg); }
 }
 
-.poster-card img {
-  --poster-y: 0px;
-  transform: translate3d(0, var(--poster-y), 0) scale(1.015);
-  will-change: transform;
-}
-
-/* Magnetic links and CTA sheen. */
-.header-buy,
-.buy-button,
-.text-link,
-.mobile-buy a {
-  position: relative;
-  overflow: hidden;
-  transform: translate3d(var(--magnetic-x, 0), var(--magnetic-y, 0), 0);
-  transition:
-    transform .32s var(--motion-ease),
-    background-color .25s ease,
-    color .25s ease,
-    border-color .25s ease,
-    box-shadow .35s ease !important;
-  will-change: transform;
-}
-
-.header-buy::after,
-.buy-button::after,
-.mobile-buy a::after {
-  content: "";
-  position: absolute;
-  inset: -70% -30%;
-  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.35), transparent 65%);
-  transform: translateX(-90%) rotate(8deg);
-  transition: transform .75s var(--motion-ease);
-}
-
-.header-buy:hover::after,
-.buy-button:hover::after,
-.mobile-buy a:hover::after { transform: translateX(90%) rotate(8deg); }
-
-.buy-button:hover {
-  box-shadow: 0 18px 45px -18px rgba(var(--motion-green), .7);
-}
-
-/* Staggered technical list. */
-.spec-list > div,
-.offer-copy li,
-.footer-links a {
-  opacity: 0;
-  transform: translate3d(0, 16px, 0);
-  transition:
-    opacity .65s var(--motion-ease),
-    transform .65s var(--motion-ease),
-    color .25s ease;
-  transition-delay: calc(var(--item-index, 0) * 55ms);
-}
-
-.spec-list.is-visible > div,
-.offer-copy.is-visible li,
-footer.is-visible .footer-links a,
-.footer-links.is-visible a {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-/* FAQ opens as an active DS card, but retains the original geometry. */
-.faq-list details {
-  position: relative;
-  transition:
-    background-color .35s ease,
-    padding .45s var(--motion-ease),
-    border-color .35s ease,
-    transform .45s var(--motion-ease),
-    box-shadow .45s ease;
-}
-
-.faq-list details::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 2px;
-  background: #d5b26b;
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform .45s var(--motion-ease);
-}
-
-.faq-list details[open] {
-  padding-inline: 20px;
-  background: rgba(255,255,255,.045);
-  border-color: rgba(213,178,107,.48);
-  transform: scale(1.012);
-  box-shadow: inset 0 1px rgba(255,255,255,.06), 0 25px 60px -42px #000;
-}
-
-.faq-list details[open]::before { transform: scaleY(1); }
-
-.faq-answer {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition: grid-template-rows .5s var(--motion-ease), opacity .35s ease;
-}
-
-.faq-answer > div { overflow: hidden; }
-.faq-list details[open] .faq-answer { grid-template-rows: 1fr; opacity: 1; }
-
-.faq-list .faq-answer p { margin-top: -3px; }
-
-/* Marquee reacts to user attention without changing dimensions. */
-.marquee > div { animation-duration: var(--marquee-duration, 23s) !important; }
-.marquee:hover > div { animation-play-state: paused; }
-
-/* Fine section boundary scan, only visible during scroll. */
-.section,
-.offer,
-.cinematic {
-  position: relative;
-}
-
-.section::after,
-.offer::after {
-  content: "";
-  position: absolute;
-  left: clamp(22px, 5vw, 80px);
-  right: clamp(22px, 5vw, 80px);
-  bottom: 0;
-  height: 1px;
-  opacity: .07;
-  background: linear-gradient(90deg, transparent, currentColor 18%, currentColor 82%, transparent);
-  transform: scaleX(.7);
-  transition: transform 1s var(--motion-ease);
-}
-
-.section.in-view::after,
-.offer.in-view::after { transform: scaleX(1); }
-
-@media (max-width: 900px) {
-  .motion-grid { opacity: .02; background-size: 56px 56px, 56px 56px, 10px 10px; }
-  .cursor-orb { display: none; }
-  .bento > * { transform: none !important; }
-  .cinematic-inner > img { --cinematic-scale: 1.19; }
-  .offer-image img { --offer-scale: 1.025; }
-  .site-header.is-hidden { transform: none; }
+@keyframes closing-blob {
+  to { transform: translate(30px, 22px) rotate(14deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto !important; }
-  .motion-grid,
-  .cursor-orb,
-  .scroll-progress { display: none !important; }
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-  }
-  html.motion-ready .reveal,
-  html.motion-ready .hero-image,
-  .word-inner,
-  .spec-list > div,
-  .offer-copy li,
-  .footer-links a {
-    opacity: 1 !important;
-    filter: none !important;
-    clip-path: none !important;
-    transform: none !important;
+    transition-duration: 0.001ms !important;
   }
 }

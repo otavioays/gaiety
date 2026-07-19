@@ -34,17 +34,19 @@
     validTrackerUrl(previewOverride) || defaultPreviewTracker;
   const V2_ATTRIBUTION_KEY = "fbads_conversion_tracker_session_attribution_v2";
   const LEGACY_ATTRIBUTION_KEY = "fbads_conversion_tracker_session_attribution";
-  const IMPRESSION_STORAGE_KEY = "gaiety_cta_impressions_v2";
+  const IMPRESSION_STORAGE_KEY = "gaiety_ritual_cta_impressions_v2";
   const PAGE_STARTED_AT = Date.now();
   const CTA_THRESHOLD_MS = 750;
   const PRODUCT = {
-    product_id: "gaiety-classic",
-    variant_id: "64213500100977",
-    product_name: "GAIETY Classic",
-    price: 169,
+    product_id: "ritual-nitido",
+    product_name: "Ritual Nítido (pré-lançamento)",
+    offer_stage: "validation_waitlist",
+    price: null,
     currency: "BRL",
-    landing_version: params.get("landing_version") || "gaiety-classic-v1",
-    offer_version: params.get("offer_version") || "price-169-v1",
+    landing_version:
+      params.get("landing_version") || "ritual-nitido-prelaunch-v1",
+    offer_version:
+      params.get("offer_version") || "validation-waitlist-v1",
   };
 
   let trackerWrapper = null;
@@ -238,6 +240,7 @@
   window.__gaietyConversionTrackerPromise = loadSelectedTracker();
 
   function placementFor(link) {
+    if (link.dataset.cta) return link.dataset.cta;
     if (link.classList.contains("header-buy")) return "header";
     if (link.classList.contains("hero-buy-primary")) return "hero";
     if (link.classList.contains("buy-button")) return "offer";
@@ -247,17 +250,8 @@
     return "unknown";
   }
 
-  function isCheckoutLink(link) {
-    if (!(link instanceof HTMLAnchorElement)) return false;
-    try {
-      const url = new URL(link.href, window.location.href);
-      return (
-        url.hostname === "gaiety-6507.myshopify.com" &&
-        url.pathname.startsWith("/cart/64213500100977:1")
-      );
-    } catch (_error) {
-      return false;
-    }
+  function isTrackedCta(element) {
+    return element instanceof HTMLElement && element.matches("[data-cta]");
   }
 
   function scrollDepth() {
@@ -331,7 +325,7 @@
       max_intersection_ratio: Number(state.maxRatio.toFixed(4)),
       impression_threshold_ms: CTA_THRESHOLD_MS,
       impression_sent: state.impressionSent,
-      integration_version: "gaiety-bridge-v2-preview",
+      integration_version: "ritual-nitido-rich-preview-v1",
       tracker_channel: "preview",
     });
   }
@@ -341,7 +335,7 @@
     tracker.track(
       "creative_context",
       Object.assign({}, PRODUCT, creativeContext(), {
-        integration_version: "gaiety-bridge-v2-preview",
+        integration_version: "ritual-nitido-rich-preview-v1",
         tracker_channel: "preview",
       }),
     );
@@ -350,7 +344,9 @@
   function installCtaExposure(tracker) {
     if (!tracker || typeof tracker.track !== "function") return;
 
-    const links = Array.from(document.querySelectorAll("a")).filter(isCheckoutLink);
+    const links = Array.from(document.querySelectorAll("[data-cta]")).filter(
+      isTrackedCta,
+    );
     if (links.length === 0) return;
     const sent = readSentImpressions();
 
@@ -434,7 +430,7 @@
       (event) => {
         const target = event.target;
         if (!target || typeof target.closest !== "function") return;
-        const link = target.closest("a");
+        const link = target.closest("[data-cta]");
         const state = ctaStates.get(link);
         if (!state) return;
         tracker.track("cta_click_context", stateProperties(state));

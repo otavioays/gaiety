@@ -14,7 +14,5 @@ jobs:
           node-version: 22
       - name: Check storefront JavaScript
         run: node --check script.js
-      - name: Check checkout tracking bridge
-        run: node --check ds-completion.js
-      - name: Check active Shopify custom pixel
-        run: node --check shopify-custom-pixel-v2.js
+      - name: Check waitlist tracking bridge
+        run: node --check tracking-bridge.js

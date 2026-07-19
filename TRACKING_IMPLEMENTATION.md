@@ -1,66 +1,65 @@
-# Rastreamento de conversão da GAIETY
+# Rastreamento — Ritual Nítido™
 
-A página de vendas já carrega automaticamente o tracker privado e envia:
+Esta iteração mede interesse na validação. Não envia eventos de compra, carrinho ou checkout.
 
-- `page_view` ao abrir a landing page;
-- `buy_button_click` ao clicar em qualquer CTA de compra;
-- `add_to_cart` antes de abrir o link permanente da Shopify;
-- IDs de visitante e sessão, UTMs e `fbclid` como atributos do carrinho.
+## Integrações preservadas
 
-O checkout e a compra precisam do Custom Pixel da Shopify, porque essas etapas acontecem no domínio da Shopify.
+- Meta Pixel: `1002939839166097`;
+- tracker privado: `https://analise-de-dados-fbads.vercel.app/tracker.js`;
+- preview opcional do tracker com `?ct_tracker_preview=1`;
+- telemetria rica de laboratório com `?ct_rich_telemetry=1`, sem afetar o tráfego normal.
 
-## Ativar o Custom Pixel
-
-1. No Shopify Admin, abra **Configurações**.
-2. Entre em **Eventos do cliente**.
-3. Clique em **Adicionar pixel personalizado**.
-4. Use o nome `GAIETY Conversion Tracker`.
-5. Abra o arquivo [`shopify-custom-pixel.js`](./shopify-custom-pixel.js).
-6. Copie todo o conteúdo e cole no editor do pixel.
-7. Salve e clique em **Conectar**.
-8. Nas permissões, selecione a finalidade de **Analytics** quando a Shopify solicitar.
-
-O pixel assina os eventos padrão `checkout_started` e `checkout_completed`. A compra é enviada ao dashboard com o nome `purchase`.
-
-## Teste completo
-
-Abra a landing page com UTMs:
+## Identidade da oferta
 
 ```text
-https://otavioays.github.io/gaiety/?utm_source=facebook&utm_medium=paid_social&utm_campaign=relogio-julho&utm_content=criativo-01
+product_id: ritual-nitido
+product_name: Ritual Nítido (pré-lançamento)
+offer_stage: validation_waitlist
+page_version: ritual-nitido-prelaunch-v1
 ```
 
-Depois:
+## Eventos da landing page
 
-1. Clique em um botão de compra.
-2. Inicie o checkout.
-3. Para validar a compra sem afetar uma venda real, use o modo de teste disponível no gateway ou um pedido de teste da Shopify.
-4. Abra o dashboard:
+- `page_view`: disparado pelo tracker carregado na página;
+- `cta_impression`: quando 50% de um CTA entra no viewport, uma vez por placement/sessão;
+- `waitlist_cta_click`: clique em qualquer elemento com `data-cta`;
+- `section_view`: primeira visualização de 25% de cada seção com `data-section`;
+- `faq_open`: abertura de uma pergunta;
+- `waitlist_validation_error`: tentativa com campos inválidos;
+- `waitlist_preview_submit`: formulário válido, mas ainda sem endpoint configurado;
+- `waitlist_submit`: endpoint conectado e resposta `2xx`;
+- `waitlist_submit_error`: falha no endpoint.
+
+No modo de telemetria rica, `tracking-rich-preview.js` acrescenta contexto criativo, tempo real de exposição aos CTAs, profundidade de rolagem e geometria do viewport. O arquivo usa a mesma identidade `ritual-nitido` e não procura mais o checkout ou a variante do relógio anterior.
+
+O Meta Pixel dispara `Lead` apenas junto de `waitlist_submit` bem-sucedido.
+
+## Privacidade
+
+Nome e e-mail são enviados somente ao endpoint definido em `data-endpoint`. Esses campos não entram em eventos do tracker privado. As propriedades de eventos incluem `pii_included: false` ou `pii_sent_to_tracker: false` para facilitar auditoria.
+
+## Funil esperado nesta fase
 
 ```text
-https://analise-de-dados-fbads.vercel.app/dashboard
+page_view → cta_impression → waitlist_cta_click → waitlist_submit
 ```
 
-O funil esperado é:
+Enquanto o endpoint estiver vazio, o último passo será `waitlist_preview_submit`, e a interface informa que nenhum dado foi enviado.
 
-```text
-page_view -> buy_button_click -> add_to_cart -> checkout_started -> purchase
+## Verificação rápida
+
+```bash
+node --check script.js
+node --check tracking-bridge.js
 ```
 
-## Consultar diretamente no Neon
+Depois de conectar o endpoint:
 
-```sql
-select
-  event_name,
-  visitor_id,
-  session_id,
-  utm_campaign,
-  utm_content,
-  client_timestamp,
-  properties
-from public.analytics_events
-order by received_at desc
-limit 100;
-```
+1. abrir a página com UTMs de teste;
+2. clicar em CTAs de placements diferentes;
+3. enviar um lead de teste autorizado;
+4. confirmar que o backend recebeu os campos;
+5. confirmar `waitlist_submit` no dashboard sem PII;
+6. confirmar o evento `Lead` no Meta Events Manager.
 
-Os eventos da mesma jornada devem manter o mesmo `visitor_id` e `session_id` desde a landing page até a compra.
+Checkout, `add_to_cart` e Custom Pixel da Shopify não fazem parte desta etapa. Eles só devem voltar quando produto, variante e checkout do Ritual Nítido™ existirem e estiverem documentados.
