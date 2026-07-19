@@ -1,0 +1,27 @@
+name: Validate tracking JavaScript
+
+on:
+  pull_request:
+    paths:
+      - "tracking-bridge.js"
+      - "tracking-rich-preview.js"
+      - "script.js"
+      - ".github/workflows/validate-tracking-js.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: |
+          node --check tracking-bridge.js
+          node --check tracking-rich-preview.js
+          node --check script.js

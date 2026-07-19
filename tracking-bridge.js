@@ -1,6 +1,20 @@
 (function installGaietyTrackingBridge() {
   "use strict";
 
+  const bootstrapParams = new URLSearchParams(window.location.search);
+  if (
+    bootstrapParams.get("ct_tracker_preview") === "1" ||
+    bootstrapParams.get("ct_rich_telemetry") === "1"
+  ) {
+    if (window.__gaietyRichPreviewLoading) return;
+    window.__gaietyRichPreviewLoading = true;
+    const richScript = document.createElement("script");
+    richScript.src = "tracking-rich-preview.js?v=iteration-12-1";
+    richScript.async = false;
+    document.head.appendChild(richScript);
+    return;
+  }
+
   if (window.__gaietyTrackingBridgeInstalled) return;
   window.__gaietyTrackingBridgeInstalled = true;
 
