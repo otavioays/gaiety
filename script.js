@@ -17,6 +17,16 @@
     }
   }
 
+  function installHowToSection() {
+    if (document.querySelector("#como-usar") || document.querySelector("script[data-how-to-module]")) return;
+
+    const script = document.createElement("script");
+    script.src = "how-to.js?v=ritual-1";
+    script.async = false;
+    script.dataset.howToModule = "";
+    document.head.appendChild(script);
+  }
+
   function installHeader() {
     const header = document.querySelector("[data-header]");
     if (!header) return;
@@ -271,6 +281,7 @@
     const year = document.querySelector("#year");
     if (year) year.textContent = String(new Date().getFullYear());
 
+    installHowToSection();
     installHeader();
     installMenu();
     installReveal();
