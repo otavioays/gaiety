@@ -189,43 +189,61 @@
     border-bottom: 0;
   }
 
-  .ancestral-heading {
-    margin-bottom: 62px;
+  .legacy-origin-heading {
+    max-width: 820px;
+    margin-bottom: 54px;
   }
 
-  .ancestral-story,
-  .evolution-hypothesis {
+  .legacy-origin-heading h2 {
+    font-size: clamp(2.8rem, 7vw, 3.8rem);
+  }
+
+  .legacy-origin-grid,
+  .legacy-industry-grid,
+  .legacy-belief-grid {
     grid-template-columns: 1fr;
   }
 
-  .ancestral-story {
-    gap: 58px;
+  .legacy-origin-grid {
+    gap: 48px;
   }
 
-  .ancestral-copy {
-    max-width: 680px;
+  .legacy-origin-copy,
+  .legacy-industry-copy,
+  .legacy-belief-copy {
+    max-width: 700px;
     justify-self: center;
   }
 
-  .ancestral-visual {
-    width: min(92%, 590px);
+  .legacy-origin-image {
     justify-self: center;
   }
 
-  .evolution-hypothesis {
-    gap: 30px;
+  .legacy-industry-grid {
+    gap: 45px;
   }
 
-  .evolution-hypothesis > div:last-child {
-    max-width: 720px;
+  .legacy-industry-collage {
+    justify-self: center;
   }
 
-  .evidence-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .evidence-card {
+  .legacy-belief-grid {
     min-height: 0;
+    gap: 35px;
+  }
+
+  .legacy-product-visual {
+    width: min(100%, 570px);
+    min-height: 585px;
+    justify-self: center;
+  }
+
+  .legacy-testing-banner {
+    padding-right: 24px;
+  }
+
+  .legacy-testing-banner > a {
+    min-width: 220px;
   }
 
   .loop-layout {
@@ -482,86 +500,130 @@
     left: 0;
   }
 
-  .ancestral-heading {
+  .ancestral-panel--origin {
+    padding: 55px 0 65px;
+  }
+
+  .legacy-origin-heading {
     margin-bottom: 46px;
   }
 
-  .ancestral-heading h2 {
-    font-size: clamp(2.75rem, 13vw, 4.2rem);
+  .legacy-origin-heading h2 {
+    font-size: clamp(2.2rem, 10vw, 3.15rem);
+    line-height: 1.12;
   }
 
-  .ancestral-heading > p {
-    font-size: 0.96rem;
+  .legacy-origin-grid {
+    gap: 39px;
   }
 
-  .ancestral-story {
-    gap: 43px;
+  .legacy-origin-copy p {
+    margin-bottom: 24px;
+    font-size: 0.98rem;
   }
 
-  .ancestral-copy > p {
-    font-size: 0.94rem;
+  .legacy-origin-image {
+    width: min(92%, 390px);
   }
 
-  .ancestral-copy > p:first-child {
-    font-size: 1.55rem;
+  .ancestral-panel--industry {
+    padding: 48px 0 60px;
   }
 
-  .ancestral-source {
-    padding: 17px;
-    box-shadow: 5px 5px 0 var(--plum);
+  .legacy-industry-grid {
+    gap: 34px;
   }
 
-  .ancestral-visual {
-    width: calc(100% - 18px);
-    box-shadow: 10px 10px 0 rgba(237, 255, 69, 0.9);
+  .legacy-industry-collage {
+    width: min(100%, 452px);
   }
 
-  .ancestral-visual::before {
-    top: -24px;
-    right: -12px;
-    width: 70px;
-    height: 70px;
-    font-size: 1.08rem;
+  .legacy-industry-copy p,
+  .legacy-industry-copy p:first-child {
+    font-size: 0.98rem;
   }
 
-  .evolution-hypothesis {
-    margin-top: 78px;
-    padding: 27px 23px;
-    border-radius: 19px;
-    box-shadow: 8px 8px 0 var(--pink);
+  .ancestral-panel--belief {
+    padding: 56px 0 28px;
   }
 
-  .evolution-hypothesis h3 {
-    font-size: 2.15rem;
+  .legacy-belief-copy h3 {
+    font-size: 1.65rem;
   }
 
-  .evolution-hypothesis p {
-    font-size: 0.9rem;
+  .legacy-belief-copy p {
+    font-size: 0.95rem;
   }
 
-  .modern-evidence {
-    margin-top: 84px;
+  .legacy-unlock-button {
+    width: calc(100% - 12px);
+    min-height: 62px;
+    margin-left: 6px;
+    padding-inline: 17px;
+    font-size: 0.88rem;
   }
 
-  .modern-evidence-heading {
-    margin-bottom: 38px;
+  .legacy-trust-row {
+    padding-left: 0;
+    justify-content: center;
+    text-align: center;
   }
 
-  .modern-evidence-heading h3 {
-    font-size: clamp(2.3rem, 11vw, 3.5rem);
+  .legacy-product-visual {
+    min-height: 510px;
+    transform: scale(0.92);
+    transform-origin: top center;
   }
 
-  .evidence-card {
-    padding: 25px 23px;
+  .legacy-product-visual > img {
+    bottom: -42px;
+    width: min(69%, 300px);
   }
 
-  .evidence-card h4 {
-    margin-top: 48px;
+  .legacy-benefit--focus {
+    left: 24px;
   }
 
-  .research-footnotes {
-    display: grid;
-    align-items: start;
+  .legacy-benefit--energy {
+    right: 24px;
+  }
+
+  .legacy-benefit--ritual {
+    left: -7px;
+  }
+
+  .legacy-benefit--clarity {
+    right: -7px;
+  }
+
+  .legacy-testing-banner {
+    padding: 23px 20px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .legacy-testing-title {
+    flex-direction: column;
+  }
+
+  .legacy-testing-title > span {
+    width: 54px;
+    height: 54px;
+  }
+
+  .legacy-testing-banner > a {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .legacy-research-notes {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .legacy-research-notes > div {
+    justify-content: flex-start;
   }
 
   .section-heading {
@@ -860,6 +922,32 @@
 @media (max-width: 390px) {
   .hero h1 {
     font-size: 2.85rem;
+  }
+
+  .legacy-origin-heading h2 {
+    font-size: 2rem;
+  }
+
+  .legacy-origin-copy p,
+  .legacy-industry-copy p,
+  .legacy-industry-copy p:first-child,
+  .legacy-belief-copy p {
+    font-size: 0.91rem;
+  }
+
+  .legacy-belief-copy h3 {
+    font-size: 1.48rem;
+  }
+
+  .legacy-product-visual {
+    width: 112%;
+    margin-left: -6%;
+    min-height: 470px;
+    transform: scale(0.82);
+  }
+
+  .legacy-testing-title strong {
+    font-size: 1.15rem;
   }
 
   .visual-card--bottom {
