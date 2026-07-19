@@ -189,6 +189,45 @@
     border-bottom: 0;
   }
 
+  .ancestral-heading {
+    margin-bottom: 62px;
+  }
+
+  .ancestral-story,
+  .evolution-hypothesis {
+    grid-template-columns: 1fr;
+  }
+
+  .ancestral-story {
+    gap: 58px;
+  }
+
+  .ancestral-copy {
+    max-width: 680px;
+    justify-self: center;
+  }
+
+  .ancestral-visual {
+    width: min(92%, 590px);
+    justify-self: center;
+  }
+
+  .evolution-hypothesis {
+    gap: 30px;
+  }
+
+  .evolution-hypothesis > div:last-child {
+    max-width: 720px;
+  }
+
+  .evidence-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-card {
+    min-height: 0;
+  }
+
   .loop-layout {
     grid-template-columns: 1fr;
     gap: 70px;
@@ -441,6 +480,88 @@
   .visual-caption {
     right: 0;
     left: 0;
+  }
+
+  .ancestral-heading {
+    margin-bottom: 46px;
+  }
+
+  .ancestral-heading h2 {
+    font-size: clamp(2.75rem, 13vw, 4.2rem);
+  }
+
+  .ancestral-heading > p {
+    font-size: 0.96rem;
+  }
+
+  .ancestral-story {
+    gap: 43px;
+  }
+
+  .ancestral-copy > p {
+    font-size: 0.94rem;
+  }
+
+  .ancestral-copy > p:first-child {
+    font-size: 1.55rem;
+  }
+
+  .ancestral-source {
+    padding: 17px;
+    box-shadow: 5px 5px 0 var(--plum);
+  }
+
+  .ancestral-visual {
+    width: calc(100% - 18px);
+    box-shadow: 10px 10px 0 rgba(237, 255, 69, 0.9);
+  }
+
+  .ancestral-visual::before {
+    top: -24px;
+    right: -12px;
+    width: 70px;
+    height: 70px;
+    font-size: 1.08rem;
+  }
+
+  .evolution-hypothesis {
+    margin-top: 78px;
+    padding: 27px 23px;
+    border-radius: 19px;
+    box-shadow: 8px 8px 0 var(--pink);
+  }
+
+  .evolution-hypothesis h3 {
+    font-size: 2.15rem;
+  }
+
+  .evolution-hypothesis p {
+    font-size: 0.9rem;
+  }
+
+  .modern-evidence {
+    margin-top: 84px;
+  }
+
+  .modern-evidence-heading {
+    margin-bottom: 38px;
+  }
+
+  .modern-evidence-heading h3 {
+    font-size: clamp(2.3rem, 11vw, 3.5rem);
+  }
+
+  .evidence-card {
+    padding: 25px 23px;
+  }
+
+  .evidence-card h4 {
+    margin-top: 48px;
+  }
+
+  .research-footnotes {
+    display: grid;
+    align-items: start;
   }
 
   .section-heading {

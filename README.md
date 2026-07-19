@@ -19,12 +19,14 @@ Por isso, a copy usa o patch apenas como âncora comportamental e separa clarame
 
 - `assets/mushroom-complex-patch.png`: foto original de baixa resolução recebida do fornecedor;
 - `assets/mushroom-hero-lifestyle-916.webp`: foto promocional completa, preservada na proporção original e otimizada para 1024 × 1819.
+- `assets/ancestral-mushroom-foraging.webp`: reconstituição artística gerada para a seção histórica; não é apresentada como registro arqueológico.
 
 A foto serve apenas para apresentação. Ela não é usada como prova de embalagem física, composição, origem ou eficácia, e essa distinção aparece na própria página.
 
 ## Estrutura da página
 
 - hero orientado a benefício, curiosidade e dor;
+- seção de contexto ancestral e evidência humana com fontes abertas e limites explícitos;
 - mecanismo comportamental `Sistema Ritual Visível™`;
 - auditoria das contradições do produto;
 - mecanismo de credibilidade `Padrão Prova Aberta™`;
