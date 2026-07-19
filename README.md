@@ -18,9 +18,9 @@ Por isso, a copy usa o patch apenas como âncora comportamental e separa clarame
 ## Imagens do produto
 
 - `assets/mushroom-complex-patch.png`: foto original de baixa resolução recebida do fornecedor;
-- `assets/mushroom-hero-v2.webp`: mockup visual criado a partir da foto original e otimizado para 72 KB.
+- `assets/mushroom-hero-lifestyle.webp`: foto promocional recebida, recortada para 1024 × 1536 e otimizada para 68 KB.
 
-O mockup serve apenas para apresentação. Ele não é usado como prova de embalagem física, composição, origem ou eficácia, e essa distinção aparece na própria página.
+A foto serve apenas para apresentação. Ela não é usada como prova de embalagem física, composição, origem ou eficácia, e essa distinção aparece na própria página.
 
 ## Estrutura da página
 
