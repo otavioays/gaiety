@@ -657,7 +657,8 @@ input:focus-visible {
 
 .product-image-wrap {
   position: relative;
-  width: 80%;
+  width: min(74%, 330px);
+  aspect-ratio: 941 / 1672;
   padding: 7px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.82);
@@ -667,10 +668,12 @@ input:focus-visible {
 }
 
 .product-image-wrap img {
+  display: block;
   width: 100%;
-  aspect-ratio: 2 / 3;
+  height: 100%;
+  aspect-ratio: 941 / 1672;
   border-radius: 13px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .stage-label {

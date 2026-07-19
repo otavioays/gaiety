@@ -18,7 +18,7 @@ Por isso, a copy usa o patch apenas como âncora comportamental e separa clarame
 ## Imagens do produto
 
 - `assets/mushroom-complex-patch.png`: foto original de baixa resolução recebida do fornecedor;
-- `assets/mushroom-hero-lifestyle.webp`: foto promocional recebida, recortada para 1024 × 1536 e otimizada para 68 KB.
+- `assets/mushroom-hero-lifestyle-916.webp`: foto promocional completa, preservada na proporção original e otimizada para 1024 × 1819.
 
 A foto serve apenas para apresentação. Ela não é usada como prova de embalagem física, composição, origem ou eficácia, e essa distinção aparece na própria página.
 
