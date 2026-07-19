@@ -10,9 +10,50 @@
     document.head.appendChild(stylesheet);
   }
 
+  function trimPageAfterHowTo() {
+    const main = document.querySelector("main");
+    const howTo = document.querySelector("#como-usar");
+    const faq = document.querySelector("#duvidas");
+    if (!main || !howTo || !faq) return;
+
+    let reachedHowTo = false;
+    Array.from(main.children).forEach((section) => {
+      if (section === howTo) {
+        reachedHowTo = true;
+        return;
+      }
+
+      if (!reachedHowTo || section === faq) return;
+      section.remove();
+    });
+
+    if (howTo.nextElementSibling !== faq) {
+      howTo.insertAdjacentElement("afterend", faq);
+    }
+
+    document
+      .querySelectorAll("[data-mobile-dock], [data-desktop-dock]")
+      .forEach((element) => element.remove());
+
+    const removedTargets = new Set([
+      "#problema",
+      "#mecanismo",
+      "#produto",
+      "#provas",
+      "#lista",
+      "#qualificacao",
+    ]);
+
+    document.querySelectorAll("a[href^='#']").forEach((link) => {
+      if (removedTargets.has(link.getAttribute("href"))) link.remove();
+    });
+
+    const faqUpdateLink = faq.querySelector(".faq-heading .text-link");
+    if (faqUpdateLink) faqUpdateLink.remove();
+  }
+
   loadStylesheet("ingredient-grid.css?v=ritual-1", "data-ingredient-grid-style");
   loadStylesheet("how-to.css?v=ritual-1", "data-how-to-style");
-  loadStylesheet("trim-after-how-to.css?v=ritual-1", "data-trim-after-how-to-style");
 
   if (!document.querySelector("#ingredientes-em-destaque")) {
     const blendSection = document.createElement("section");
@@ -177,4 +218,6 @@
       main.appendChild(section);
     }
   }
+
+  trimPageAfterHowTo();
 })();
