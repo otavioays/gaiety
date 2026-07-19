@@ -8,39 +8,41 @@ body::after,
 .site-footer::after {
   content: "";
   position: fixed;
-  z-index: 40;
-  width: clamp(210px, 22vw, 350px);
+  z-index: 25;
+  width: clamp(230px, 24vw, 390px);
   aspect-ratio: 4 / 5;
   pointer-events: none;
-  opacity: 0.42;
-  background: url("assets/sales-corner-photo.svg?v=3") center / cover no-repeat;
-  filter: saturate(0.92) contrast(1.05) drop-shadow(0 18px 28px rgba(36, 5, 46, 0.17));
-  -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.98) 60%, transparent 88%);
-  mask-image: radial-gradient(ellipse at center, #000 40%, rgba(0, 0, 0, 0.98) 60%, transparent 88%);
+  opacity: 0.82;
+  background-image: url("assets/sales-corner-photo.svg?v=5");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 28px;
+  box-shadow: 0 18px 40px rgba(36, 5, 46, 0.18);
 }
 
 body::before {
-  top: 88px;
-  left: -108px;
-  transform: rotate(-10deg);
+  top: 96px;
+  left: -150px;
+  transform: rotate(-9deg);
 }
 
 body::after {
-  top: 88px;
-  right: -108px;
-  transform: scaleX(-1) rotate(-10deg);
+  top: 96px;
+  right: -150px;
+  transform: scaleX(-1) rotate(-9deg);
 }
 
 .site-footer::before {
-  bottom: -92px;
-  left: -108px;
-  transform: scaleY(-1) rotate(-10deg);
+  left: -150px;
+  bottom: -125px;
+  transform: scaleY(-1) rotate(-9deg);
 }
 
 .site-footer::after {
-  right: -108px;
-  bottom: -92px;
-  transform: scale(-1) rotate(-10deg);
+  right: -150px;
+  bottom: -125px;
+  transform: scale(-1) rotate(-9deg);
 }
 
 @media (max-width: 900px) {
@@ -48,8 +50,9 @@ body::after {
   body::after,
   .site-footer::before,
   .site-footer::after {
-    width: clamp(160px, 42vw, 230px);
-    opacity: 0.3;
+    width: clamp(175px, 46vw, 245px);
+    opacity: 0.72;
+    border-radius: 20px;
   }
 
   body::after,
@@ -58,12 +61,12 @@ body::after {
   }
 
   body::before {
-    top: 92px;
-    left: -78px;
+    top: 112px;
+    left: -104px;
   }
 
   .site-footer::after {
-    right: -78px;
-    bottom: -66px;
+    right: -104px;
+    bottom: -82px;
   }
 }
