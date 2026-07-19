@@ -1190,6 +1190,237 @@
   }
 }
 
+/* Responsive evidence timeline. */
+@media (max-width: 960px) {
+  .attention-evidence {
+    padding: 78px 0 82px;
+  }
+
+  .attention-evidence-heading h2 {
+    font-size: clamp(2.75rem, 7vw, 3.75rem);
+  }
+
+  .attention-legend {
+    margin-bottom: 62px;
+  }
+
+  .attention-timeline {
+    width: min(100%, 820px);
+  }
+
+  .attention-step {
+    min-height: 305px;
+    grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
+  }
+
+  .attention-node {
+    width: 52px;
+    height: 52px;
+  }
+
+  .attention-time {
+    gap: 8px;
+  }
+
+  .attention-time > span {
+    font-size: 1.35rem;
+  }
+
+  .attention-time strong {
+    font-size: 1.52rem;
+  }
+
+  .attention-study-card {
+    min-height: 0;
+    padding: 22px 21px 19px;
+  }
+
+  .attention-study-card p {
+    font-size: 0.84rem;
+  }
+
+  .attention-product-decor {
+    width: 210px;
+    opacity: 0.12;
+  }
+}
+
+@media (max-width: 700px) {
+  .attention-evidence {
+    padding: 62px 0 70px;
+  }
+
+  .attention-evidence-heading {
+    margin-bottom: 22px;
+  }
+
+  .attention-kicker {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+  }
+
+  .attention-evidence-heading h2 {
+    font-size: clamp(2.2rem, 11vw, 3rem);
+    line-height: 1.07;
+  }
+
+  .attention-evidence-heading p {
+    font-size: 0.85rem;
+  }
+
+  .attention-legend {
+    width: 100%;
+    margin: 24px auto 45px;
+    padding: 12px 13px;
+    border-radius: 16px;
+    justify-content: flex-start;
+    gap: 8px 13px;
+    font-size: 0.57rem;
+  }
+
+  .attention-timeline::before {
+    top: 23px;
+    bottom: 28px;
+    left: 27px;
+    transform: none;
+  }
+
+  .attention-step,
+  .attention-step--product {
+    min-height: 0;
+    padding-bottom: 42px;
+    grid-template-columns: 57px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: start;
+  }
+
+  .attention-step:last-child {
+    padding-bottom: 10px;
+  }
+
+  .attention-step--right .attention-time,
+  .attention-step--left .attention-time {
+    margin: 0 0 13px;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .attention-time > span {
+    font-size: 1.1rem;
+  }
+
+  .attention-time small {
+    font-size: 0.57rem;
+  }
+
+  .attention-time strong {
+    font-size: 1.35rem;
+  }
+
+  .attention-node {
+    width: 44px;
+    height: 44px;
+    margin-left: 5px;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    justify-self: start;
+    font-size: 1rem;
+  }
+
+  .attention-step--right .attention-study-card,
+  .attention-step--left .attention-study-card {
+    width: 100%;
+    padding: 19px 18px 17px;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: stretch;
+  }
+
+  .attention-step--left .attention-study-card::before,
+  .attention-step--right .attention-study-card::before {
+    top: 27px;
+    right: auto;
+    left: -12px;
+    background: #ffe6ef;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 3px solid var(--plum);
+    border-left: 3px solid var(--plum);
+  }
+
+  .attention-step[data-evidence="product"] .attention-study-card::before {
+    background: #f9ffc1;
+  }
+
+  .attention-card-icon {
+    margin: 8px 0 6px;
+    font-size: 1.4rem;
+  }
+
+  .attention-grade {
+    font-size: 0.49rem;
+  }
+
+  .attention-study-card p {
+    font-size: 0.8rem;
+    line-height: 1.46;
+  }
+
+  .attention-study-card .attention-limit {
+    font-size: 0.67rem;
+  }
+
+  .attention-product-decor {
+    display: none;
+  }
+
+  .attention-evidence-footer {
+    margin-top: 42px;
+  }
+
+  .attention-evidence-cta {
+    width: calc(100% - 12px);
+    min-height: 62px;
+    padding-inline: 15px;
+    font-size: 0.86rem;
+  }
+
+  .attention-evidence-trust {
+    font-size: 0.58rem;
+  }
+
+  .attention-evidence-footer > p {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .attention-evidence-heading h2 {
+    font-size: 2rem;
+  }
+
+  .attention-step,
+  .attention-step--product {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .attention-timeline::before {
+    left: 23px;
+  }
+
+  .attention-node {
+    width: 40px;
+    height: 40px;
+    margin-left: 3px;
+  }
+
+  .attention-study-card p {
+    font-size: 0.75rem;
+  }
+}
+
 @keyframes announcement-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-35%); }

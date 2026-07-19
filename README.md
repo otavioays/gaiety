@@ -29,6 +29,7 @@ A foto serve apenas para apresentação. Ela não é usada como prova de embalag
 
 - hero orientado a benefício, curiosidade e dor;
 - seção de contexto ancestral e evidência humana com fontes abertas e limites explícitos;
+- linha do tempo ingrediente por ingrediente sobre atenção, separando sinal direto, cognição geral, resultado nulo e desfecho não medido;
 - mecanismo comportamental `Sistema Ritual Visível™`;
 - auditoria das contradições do produto;
 - mecanismo de credibilidade `Padrão Prova Aberta™`;
