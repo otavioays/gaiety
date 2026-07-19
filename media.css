@@ -1285,8 +1285,7 @@
     transform: none;
   }
 
-  .attention-step,
-  .attention-step--product {
+  .attention-step {
     min-height: 0;
     padding-bottom: 42px;
     grid-template-columns: 57px minmax(0, 1fr);
@@ -1350,10 +1349,6 @@
     border-left: 3px solid var(--plum);
   }
 
-  .attention-step[data-evidence="product"] .attention-study-card::before {
-    background: #f9ffc1;
-  }
-
   .attention-card-icon {
     margin: 8px 0 6px;
     font-size: 1.4rem;
@@ -1368,7 +1363,7 @@
     line-height: 1.46;
   }
 
-  .attention-study-card .attention-limit {
+  .attention-study-card .attention-takeaway {
     font-size: 0.67rem;
   }
 
@@ -1401,8 +1396,7 @@
     font-size: 2rem;
   }
 
-  .attention-step,
-  .attention-step--product {
+  .attention-step {
     grid-template-columns: 50px minmax(0, 1fr);
   }
 
