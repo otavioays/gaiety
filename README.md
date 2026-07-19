@@ -21,6 +21,7 @@ Por isso, a copy usa o patch apenas como âncora comportamental e separa clarame
 - `assets/mushroom-hero-lifestyle-916.webp`: foto promocional completa, preservada na proporção original e otimizada para 1024 × 1819.
 - `assets/ancestral-mushroom-foraging.webp`: reconstituição artística gerada para a seção histórica; não é apresentada como registro arqueológico.
 - `assets/modern-wellness-collage.webp`: recorte da colagem de referência usado no bloco sobre soluções rápidas da indústria.
+- `assets/customer-avatar-sprite.webp`: quatro retratos inteiramente fictícios, gerados para uso ilustrativo nos avatares; não representam os autores das avaliações.
 
 A foto serve apenas para apresentação. Ela não é usada como prova de embalagem física, composição, origem ou eficácia, e essa distinção aparece na própria página.
 

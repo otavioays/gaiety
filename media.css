@@ -1138,6 +1138,7 @@
   }
 
   .hero-review-stars {
+    position: static;
     grid-column: 2;
     justify-self: end;
     font-size: 0.94rem;

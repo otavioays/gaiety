@@ -1008,13 +1008,10 @@ input:focus-visible {
   width: 29px;
   height: 29px;
   margin-left: -6px;
-  color: #fff;
-  background: linear-gradient(145deg, var(--pink), var(--plum));
+  background-color: var(--pink-soft);
   border: 2px solid #fff2f6;
   border-radius: 50%;
   place-items: center;
-  font-size: 0.52rem;
-  font-weight: 900;
 }
 
 .hero-social-summary p {
@@ -1063,21 +1060,21 @@ input:focus-visible {
 }
 
 .hero-review-viewport {
-  min-height: 142px;
+  min-height: 124px;
 }
 
 .hero-review {
   position: relative;
   display: grid;
-  min-height: 138px;
+  min-height: 120px;
   margin: 0;
-  padding: 14px 14px 13px;
+  padding: 12px 14px;
   background: rgba(255, 255, 255, 0.94);
   border: 2px solid var(--plum);
   border-radius: 10px;
-  grid-template-columns: 66px minmax(0, 1fr) auto;
+  grid-template-columns: 68px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 11px;
 }
 
 .hero-review[hidden] {
@@ -1086,28 +1083,46 @@ input:focus-visible {
 
 .hero-review-avatar {
   display: grid;
-  width: 62px;
-  height: 62px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 64% 29%, rgba(237, 255, 69, 0.75) 0 5px, transparent 6px),
-    linear-gradient(145deg, var(--pink), var(--plum));
+  width: 66px;
+  height: 66px;
+  background-color: var(--pink-soft);
   border-radius: 50%;
   place-items: center;
-  font-size: 0.78rem;
-  font-weight: 900;
+}
+
+.avatar-face {
+  background-image: url("assets/customer-avatar-sprite.webp");
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+}
+
+.avatar-face--1 {
+  background-position: 0 0;
+}
+
+.avatar-face--2 {
+  background-position: 100% 0;
+}
+
+.avatar-face--3 {
+  background-position: 0 100%;
+}
+
+.avatar-face--4 {
+  background-position: 100% 100%;
 }
 
 .hero-review-body p {
-  margin: 0 0 9px;
+  margin: 0 0 7px;
   color: #141014;
-  font-size: 0.78rem;
+  font-size: 0.81rem;
   font-style: italic;
-  line-height: 1.43;
+  line-height: 1.4;
 }
 
 .hero-review-body > div {
   display: flex;
+  padding-right: 100px;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 2px 8px;
@@ -1124,8 +1139,11 @@ input:focus-visible {
 }
 
 .hero-review-stars {
+  position: absolute;
+  right: 14px;
+  bottom: 13px;
   color: var(--pink);
-  font-size: 1rem;
+  font-size: 1.08rem;
   letter-spacing: -0.03em;
   white-space: nowrap;
 }
@@ -1223,11 +1241,11 @@ input:focus-visible {
 }
 
 .hero-opinion-badge strong {
-  font-size: 2rem;
+  font-size: 1.05rem;
 }
 
 .hero-opinion-badge span {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 900;
   line-height: 1.17;
 }
