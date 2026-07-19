@@ -1,3 +1,5 @@
+@import url("sales-corners.css?v=ritual-2");
+
 @media (prefers-reduced-motion: no-preference) {
   html.motion-enabled .reveal {
     opacity: 0;
