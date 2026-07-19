@@ -31,7 +31,7 @@ A foto serve apenas para apresentação. Ela não é usada como prova de embalag
 - mecanismo comportamental `Sistema Ritual Visível™`;
 - auditoria das contradições do produto;
 - mecanismo de credibilidade `Padrão Prova Aberta™`;
-- tratamento explícito de prova social não verificada;
+- carrossel na hero com opiniões reproduzidas da página do produto, identificadas como relatos individuais e não como comprovação de eficácia;
 - qualificação do público;
 - garantia de transparência;
 - urgência e escassez baseadas em ordem real de cadastro;

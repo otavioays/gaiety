@@ -82,6 +82,49 @@
     elements.forEach((element) => observer.observe(element));
   }
 
+  function installHeroReviews() {
+    const root = document.querySelector("[data-hero-reviews]");
+    if (!root) return;
+
+    const reviews = Array.from(root.querySelectorAll("[data-hero-review]"));
+    const dots = Array.from(root.querySelectorAll("[data-hero-review-dot]"));
+    if (!reviews.length || reviews.length !== dots.length) return;
+
+    let currentIndex = 0;
+
+    const showReview = (nextIndex, trackChange) => {
+      currentIndex = (nextIndex + reviews.length) % reviews.length;
+
+      reviews.forEach((review, index) => {
+        const active = index === currentIndex;
+        review.hidden = !active;
+        review.classList.toggle("is-active", active);
+      });
+
+      dots.forEach((dot, index) => {
+        const active = index === currentIndex;
+        dot.classList.toggle("is-active", active);
+        dot.setAttribute("aria-selected", String(active));
+        dot.tabIndex = active ? 0 : -1;
+      });
+
+      if (trackChange) {
+        trackerEvent("hero_review_change", {
+          review_index: currentIndex + 1,
+          page_version: "ritual-nitido-prelaunch-v1",
+        });
+      }
+    };
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        showReview(index, true);
+      });
+    });
+
+    showReview(0, false);
+  }
+
   function installFaq() {
     const details = Array.from(document.querySelectorAll(".faq-list details"));
     details.forEach((item) => {
@@ -231,6 +274,7 @@
     installHeader();
     installMenu();
     installReveal();
+    installHeroReviews();
     installFaq();
     installStickyDocks();
     installWaitlistForm();
