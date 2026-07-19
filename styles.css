@@ -945,16 +945,18 @@ input:focus-visible {
 .legacy-origin-image {
   position: relative;
   width: min(100%, 390px);
+  aspect-ratio: 381 / 330;
   margin: 0;
   justify-self: start;
 }
 
 .legacy-origin-image img {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   border: 5px solid var(--pink);
   border-radius: 14px;
   object-fit: cover;
+  object-position: center 46%;
 }
 
 .legacy-origin-image figcaption {
