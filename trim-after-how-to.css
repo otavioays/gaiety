@@ -1,0 +1,22 @@
+/* Keep the page intentionally short after the application guide. */
+main > #como-usar ~ :not(#duvidas) {
+  display: none !important;
+}
+
+[data-mobile-dock],
+[data-desktop-dock] {
+  display: none !important;
+}
+
+/* Remove links that would point to sections hidden below the application guide. */
+a[href="#problema"],
+a[href="#mecanismo"],
+a[href="#produto"],
+a[href="#provas"],
+a[href="#lista"] {
+  display: none !important;
+}
+
+#duvidas .faq-heading .text-link {
+  display: none !important;
+}
