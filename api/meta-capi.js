@@ -72,17 +72,45 @@ function compact(object) {
   );
 }
 
+function safeMetaError(result) {
+  const error = result && typeof result === "object" ? result.error : null;
+  if (!error || typeof error !== "object") return undefined;
+  return compact({
+    message: cleanString(error.message, 500),
+    type: cleanString(error.type, 120),
+    code: Number.isFinite(Number(error.code)) ? Number(error.code) : undefined,
+    error_subcode: Number.isFinite(Number(error.error_subcode)) ? Number(error.error_subcode) : undefined,
+    fbtrace_id: cleanString(error.fbtrace_id, 120),
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
+  if (req.method === "GET") {
+    return res.status(200).json({
+      ok: true,
+      endpoint: "meta-capi",
+      access_token_configured: Boolean(ACCESS_TOKEN),
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+      pixel_id: PIXEL_ID,
+      graph_version: GRAPH_VERSION,
+    });
+  }
+
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ ok: false, error: "method_not_allowed" });
   }
 
   if (!ACCESS_TOKEN) {
-    return res.status(503).json({ ok: false, error: "meta_capi_not_configured" });
+    return res.status(503).json({
+      ok: false,
+      error: "meta_capi_not_configured",
+      access_token_configured: false,
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+    });
   }
 
   const body = getRequestBody(req);
@@ -143,19 +171,33 @@ module.exports = async function handler(req, res) {
     const result = await metaResponse.json().catch(() => ({}));
 
     if (!metaResponse.ok) {
+      const metaError = safeMetaError(result);
       console.error("Meta CAPI request failed", {
         status: metaResponse.status,
         event_name: eventName,
         event_id: eventId,
-        response: result,
+        response: metaError,
       });
-      return res.status(502).json({ ok: false, error: "meta_request_failed" });
+      return res.status(502).json({
+        ok: false,
+        error: "meta_request_failed",
+        meta_status: metaResponse.status,
+        meta_error: metaError,
+        pixel_id: PIXEL_ID,
+        graph_version: GRAPH_VERSION,
+        test_event_code_configured: Boolean(TEST_EVENT_CODE),
+      });
     }
 
     return res.status(200).json({
       ok: true,
       event_id: eventId,
+      event_name: eventName,
       events_received: result.events_received ?? 1,
+      messages: Array.isArray(result.messages) ? result.messages.slice(0, 5) : [],
+      pixel_id: PIXEL_ID,
+      graph_version: GRAPH_VERSION,
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
     });
   } catch (error) {
     console.error("Meta CAPI transport failed", {
@@ -163,6 +205,13 @@ module.exports = async function handler(req, res) {
       event_id: eventId,
       message: error instanceof Error ? error.message : "unknown_error",
     });
-    return res.status(502).json({ ok: false, error: "meta_transport_failed" });
+    return res.status(502).json({
+      ok: false,
+      error: "meta_transport_failed",
+      message: error instanceof Error ? error.message : "unknown_error",
+      pixel_id: PIXEL_ID,
+      graph_version: GRAPH_VERSION,
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+    });
   }
 };
