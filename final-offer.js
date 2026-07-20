@@ -358,7 +358,7 @@
           num_items:units
         },{
           preferBeacon:true,
-          trackerEventName:"checkout_started",
+          trackerEventName:"checkout_redirect",
           trackerProperties:checkoutProperties
         });
 
