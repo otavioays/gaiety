@@ -5,7 +5,7 @@
     if (document.querySelector(`link[${marker}]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = `${path}?v=exact-testimonials-1`;
+    link.href = `${path}?v=hero-cta-2`;
     link.setAttribute(marker, "");
     document.head.appendChild(link);
   }
@@ -288,6 +288,7 @@
     loadStylesheet("how-to.css", "data-how-to-style");
     loadStylesheet("sales-corners.css", "data-sales-corners-style");
     loadStylesheet("testimonials.css", "data-testimonials-style");
+    loadStylesheet("hero-cta.css", "data-hero-cta-style");
 
     installIngredientGrid();
     installHowTo();
