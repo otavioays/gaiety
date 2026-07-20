@@ -2,6 +2,10 @@
   "use strict";
 
   const STYLE_MARKER = "data-final-offer-style";
+  const CHECKOUT_URLS = {
+    1: "https://gaiety-6507.myshopify.com/cart/64223935332721:1?checkout",
+    2: "https://gaiety-6507.myshopify.com/cart/64223935299953:1?checkout"
+  };
 
   function loadStyle(){
     if(document.querySelector(`link[${STYLE_MARKER}]`)) return;
@@ -48,7 +52,7 @@
           ${compare ? `<span class="offer-card__compare">${compare}</span>` : ""}
           <strong class="offer-card__price"><small>R$</small>${price}</strong>
         </div>
-        <button class="offer-card__button" type="button" data-offer-button="${units}"><span>🛒</span> Comprar agora</button>
+        <button class="offer-card__button" type="button" data-offer-button="${units}" data-checkout-url="${CHECKOUT_URLS[units]}"><span>🛒</span> Comprar agora</button>
         <div class="offer-card__meta"><span>🚚 Envio rápido</span><span>🛡️ Garantia de satisfação</span></div>
       </article>`;
   }
@@ -91,13 +95,18 @@
     section.querySelectorAll("[data-offer-button]").forEach(button=>{
       button.addEventListener("click",()=>{
         const units=Number(button.dataset.offerButton||0);
+        const checkoutUrl=button.dataset.checkoutUrl;
+
         if(window.ConversionTracker?.track){
           Promise.resolve(window.ConversionTracker.track("offer_click",{
             offer_units:units,
             offer_price:units===2 ? 150 : 83,
-            placement:"final_offer"
+            placement:"final_offer",
+            checkout_provider:"shopify"
           })).catch(()=>null);
         }
+
+        if(checkoutUrl) window.location.assign(checkoutUrl);
       });
     });
 
