@@ -27,6 +27,16 @@
     document.head.appendChild(script);
   }
 
+  function installFinalOfferModule() {
+    if (document.querySelector("script[data-final-offer-module]")) return;
+
+    const script = document.createElement("script");
+    script.src = `final-offer.js?v=offer-1-${Date.now()}`;
+    script.async = false;
+    script.dataset.finalOfferModule = "";
+    document.head.appendChild(script);
+  }
+
   function installHeader() {
     const header = document.querySelector("[data-header]");
     if (!header) return;
@@ -282,6 +292,7 @@
     if (year) year.textContent = String(new Date().getFullYear());
 
     installHowToSection();
+    installFinalOfferModule();
     installHeader();
     installMenu();
     installReveal();
