@@ -33,15 +33,23 @@
       </details>
       <details>
         <summary>Então o resultado vem do patch ou do Ritual Nítido?<span>+</span></summary>
-        <p>O Ritual Nítido foi desenhado para funcionar como um sistema completo, não como um “adesivo mágico”. O patch é a âncora física e vestível; escolher uma tarefa e começar imediatamente são partes essenciais do protocolo. A contribuição biológica do produto exato não deve ser tratada como comprovada sem documentação específica da fórmula final.</p>
+        <p>O Ritual Nítido foi desenhado para funcionar como um sistema completo, não como um “adesivo mágico”. O patch é a âncora física e vestível; escolher uma tarefa e começar imediatamente são partes essenciais do protocolo.</p>
       </details>
       <details>
         <summary>O que eu devo esperar sentir e em quanto tempo?<span>+</span></summary>
-        <p>Não espere uma virada dramática, euforia ou uma sensação de “modo ilimitado”. Em produtos desta categoria, os relatos costumam falar em uma percepção mais sutil de clareza, constância ou facilidade para permanecer no bloco, mas os resultados variam e algumas pessoas podem não perceber diferença. Não prometemos efeito imediato nem uma duração fixa.</p>
+        <p>Não espere uma virada dramática, euforia ou uma sensação de “modo ilimitado”. Os relatos costumam falar em uma percepção mais sutil de clareza, constância ou facilidade para permanecer no bloco, mas os resultados variam e algumas pessoas podem não perceber diferença.</p>
       </details>
       <details>
         <summary>Por que usar um patch em vez de café, cápsulas ou outro aplicativo?<span>+</span></summary>
         <p>Porque o formato elimina parte da fricção: não há bebida para preparar, pó para misturar, cápsula para engolir nem outro aplicativo para abrir. Depois de aplicado, o patch permanece como um sinal visível de que você escolheu uma tarefa. Ele não precisa substituir café, sono ou ferramentas de produtividade; ocupa um papel diferente dentro da rotina.</p>
+      </details>
+      <details>
+        <summary>Quais cogumelos fazem parte da fórmula?<span>+</span></summary>
+        <p>O suplemento reúne sete cogumelos funcionais: Cordyceps, Reishi, Chaga, Turkey Tail (Cauda-de-Peru), Maitake, Shiitake e Lion’s Mane (Juba-de-Leão). A embalagem contém 8 patches e informa 5000 mcg.</p>
+      </details>
+      <details>
+        <summary>Onde o produto é fabricado?<span>+</span></summary>
+        <p>O Mushroom Complex é fabricado nos Estados Unidos com controle de qualidade. A fabricação nos EUA segue padrões rigorosos de produção e verificação, oferecendo mais segurança e tranquilidade para quem valoriza a procedência do suplemento.</p>
       </details>
       <details>
         <summary>Como eu uso o Ritual Nítido na prática?<span>+</span></summary>
@@ -49,11 +57,11 @@
       </details>
       <details>
         <summary>O patch fica preso? Posso suar, treinar ou tomar banho?<span>+</span></summary>
-        <p>A aderência melhora quando a pele está completamente limpa e seca e quando toda a superfície é pressionada após a aplicação. Água, suor intenso, oleosidade e atrito podem reduzir a fixação. Como aderência é uma das objeções mais comuns da categoria, não prometemos que ele permanecerá igual em todas as peles e atividades.</p>
+        <p>A aderência melhora quando a pele está completamente limpa e seca e quando toda a superfície é pressionada após a aplicação. Água, suor intenso, oleosidade e atrito podem reduzir a fixação. A experiência pode variar de acordo com a pele e a atividade.</p>
       </details>
       <details>
         <summary>E se eu tiver pele sensível?<span>+</span></summary>
-        <p>Não aplique sobre pele irritada, ferida ou sensibilizada. Suspenda o uso se aparecer vermelhidão, coceira, ardor ou desconforto. Pessoas com histórico de reação a adesivos ou alergia a cogumelos devem conversar com um profissional de saúde antes de usar. O produto não é “seguro para todo mundo” por definição.</p>
+        <p>Não aplique sobre pele irritada, ferida ou sensibilizada. Suspenda o uso se aparecer vermelhidão, coceira, ardor ou desconforto. Pessoas com histórico de reação a adesivos ou alergia a cogumelos devem conversar com um profissional de saúde antes de usar.</p>
       </details>
       <details>
         <summary>Posso usar junto com café, suplementos ou medicamentos?<span>+</span></summary>
@@ -64,16 +72,12 @@
         <p>Não. Modo Claro é apresentado como um ritual vestível de bem-estar para blocos de trabalho, estudo ou criação. Não diagnostica, trata, cura ou previne doenças e não deve ser usado como alternativa a tratamento médico ou psicológico.</p>
       </details>
       <details>
-        <summary>São 11 cogumelos? O que significam os 5000 mcg?<span>+</span></summary>
-        <p>A embalagem exibida informa “11 Mushroom Blend”, “5000 mcg” e 8 patches. A página destaca seis cogumelos para explicar papéis dentro da proposta do blend, mas isso não substitui a fórmula completa. Até que a documentação final detalhe quanto existe por patch e quanto corresponde a cada ingrediente, o número de 5000 mcg não deve ser interpretado como dose comprovadamente efetiva.</p>
-      </details>
-      <details>
         <summary>Por que vêm 8 patches? Qual kit tem o melhor custo por uso?<span>+</span></summary>
         <p>O pacote com 8 patches funciona como uma entrada de menor compromisso para experimentar o ritual em oito blocos importantes. Uma unidade custa R$83, cerca de R$10,38 por patch. O kit com duas unidades custa R$150 por 16 patches, cerca de R$9,38 por patch, além de economizar R$16 em comparação com duas unidades compradas separadamente.</p>
       </details>
       <details>
         <summary>E se eu usar e não perceber diferença?<span>+</span></summary>
-        <p>Essa possibilidade existe. Para avaliar de forma mais justa, use o patch em contextos semelhantes, escolha uma tarefa concreta e observe se houve mudança na facilidade de começar, permanecer e concluir o bloco. Não compre esperando uma transformação garantida. Antes de pagar, confira as condições de garantia, devolução, entrega e suporte apresentadas no checkout.</p>
+        <p>Essa possibilidade existe. Para avaliar de forma mais justa, use o patch em contextos semelhantes, escolha uma tarefa concreta e observe se houve mudança na facilidade de começar, permanecer e concluir o bloco. Os resultados individuais podem variar.</p>
       </details>
     `;
 
