@@ -95,6 +95,7 @@
   }
 
   function ctaTarget(text) {
+    if (text.startsWith("Conheça o Gaiety Modo Claro")) return "https://gaiety.cloud/";
     return /Ritual|protocolo/i.test(text) ? "../#mecanismo" : "../#produto";
   }
 
