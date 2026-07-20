@@ -82,10 +82,11 @@ function safeMetaError(result) {
   });
 }
 
-export function GET() {
+function healthResponse() {
   return json({
     ok: true,
     endpoint: "meta-capi",
+    handler: "vercel-fetch-default",
     access_token_configured: Boolean(ACCESS_TOKEN),
     test_event_code_configured: Boolean(TEST_EVENT_CODE),
     pixel_id: PIXEL_ID,
@@ -93,7 +94,7 @@ export function GET() {
   });
 }
 
-export async function POST(request) {
+async function eventResponse(request) {
   if (!ACCESS_TOKEN) {
     return json(
       {
@@ -209,3 +210,22 @@ export async function POST(request) {
     );
   }
 }
+
+export default {
+  async fetch(request) {
+    if (request.method === "GET") return healthResponse();
+    if (request.method === "POST") return eventResponse(request);
+
+    return new Response(
+      JSON.stringify({ ok: false, error: "method_not_allowed", method: request.method }),
+      {
+        status: 405,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store, max-age=0",
+          Allow: "GET, POST",
+        },
+      },
+    );
+  },
+};
