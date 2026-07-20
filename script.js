@@ -21,7 +21,7 @@
     if (document.querySelector("#como-usar") || document.querySelector("script[data-how-to-module]")) return;
 
     const script = document.createElement("script");
-    script.src = "how-to.js?v=ritual-1";
+    script.src = `how-to.js?v=ritual-8-${Date.now()}`;
     script.async = false;
     script.dataset.howToModule = "";
     document.head.appendChild(script);
