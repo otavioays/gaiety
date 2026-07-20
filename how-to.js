@@ -52,8 +52,38 @@
     if (faqUpdateLink) faqUpdateLink.remove();
   }
 
+  function installCornerPhotos() {
+    document
+      .querySelectorAll(".sales-corner-photo")
+      .forEach((element) => element.remove());
+
+    const hero = document.querySelector(".hero");
+    const faq = document.querySelector("#duvidas");
+    const source = "assets/sales-corner-photo.svg?v=7";
+
+    function appendPhoto(parent, position, loading) {
+      if (!parent) return;
+      const image = document.createElement("img");
+      image.className = `sales-corner-photo sales-corner-photo--${position}`;
+      image.src = source;
+      image.alt = "";
+      image.width = 520;
+      image.height = 650;
+      image.loading = loading;
+      image.decoding = "async";
+      image.setAttribute("aria-hidden", "true");
+      parent.appendChild(image);
+    }
+
+    appendPhoto(hero, "top-left", "eager");
+    appendPhoto(hero, "top-right", "eager");
+    appendPhoto(faq, "bottom-left", "lazy");
+    appendPhoto(faq, "bottom-right", "lazy");
+  }
+
   loadStylesheet("ingredient-grid.css?v=ritual-1", "data-ingredient-grid-style");
   loadStylesheet("how-to.css?v=ritual-1", "data-how-to-style");
+  loadStylesheet("sales-corners.css?v=ritual-7", "data-sales-corners-style");
 
   if (!document.querySelector("#ingredientes-em-destaque")) {
     const blendSection = document.createElement("section");
@@ -220,4 +250,5 @@
   }
 
   trimPageAfterHowTo();
+  installCornerPhotos();
 })();
