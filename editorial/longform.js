@@ -94,9 +94,8 @@
       </figure>`;
   }
 
-  function ctaTarget(text) {
-    if (text.startsWith("Conheça o Gaiety Modo Claro")) return "https://gaiety.cloud/";
-    return /Ritual|protocolo/i.test(text) ? "../#mecanismo" : "../#produto";
+  function ctaTarget() {
+    return "https://gaiety.cloud/";
   }
 
   function buildArticle(lines) {
@@ -114,7 +113,7 @@
         fragments.push('<section class="verdict-box"><p class="verdict-label">VEREDITO EDITORIAL</p><h2>Vale a pena conhecer o Gaiety Modo Claro?</h2>');
       } else if (line.startsWith("→ ")) {
         const label = line.slice(2);
-        fragments.push(`<a class="editorial-cta" href="${ctaTarget(label)}" rel="nofollow"><span>${escapeHtml(label)}</span><strong>→</strong></a>`);
+        fragments.push(`<a class="editorial-cta" href="${ctaTarget()}" rel="nofollow"><span>${escapeHtml(label)}</span><strong>→</strong></a>`);
       } else if (PULL_QUOTES.has(line)) {
         fragments.push(`<p class="pull-quote">${escapeHtml(line)}</p>`);
       } else {
