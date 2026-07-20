@@ -25,6 +25,15 @@
     document.head.appendChild(script);
   }
 
+  function loadBrandLogoModule(){
+    if(document.querySelector("script[data-brand-logo-module]")) return;
+    const script=document.createElement("script");
+    script.src=`brand-logo.js?v=brand-logo-1-${Date.now()}`;
+    script.async=false;
+    script.dataset.brandLogoModule="";
+    document.head.appendChild(script);
+  }
+
   function productVisual(twoUnits){
     return `
       <div class="offer-card__visual" aria-hidden="true">
@@ -116,6 +125,7 @@
   function initialize(){
     loadStyle();
     loadFaqModule();
+    loadBrandLogoModule();
     if(mount()) return;
     const observer=new MutationObserver(()=>{
       if(mount()) observer.disconnect();
