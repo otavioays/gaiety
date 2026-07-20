@@ -2,10 +2,16 @@
   "use strict";
 
   const STYLE_MARKER = "data-final-offer-style";
-  const CHECKOUT_URLS = {
-    1: "https://gaiety-6507.myshopify.com/cart/64223935332721:1?checkout",
-    2: "https://gaiety-6507.myshopify.com/cart/64223935299953:1?checkout"
+  const PRODUCT_ID = "15917657129329";
+  const VARIANT_IDS = {
+    1: "64223935332721",
+    2: "64223935299953"
   };
+  const CHECKOUT_URLS = {
+    1: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[1]}:1?checkout`,
+    2: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[2]}:1?checkout`
+  };
+  const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v1";
 
   function loadStyle(){
     if(document.querySelector(`link[${STYLE_MARKER}]`)) return;
@@ -32,6 +38,100 @@
     script.async=false;
     script.dataset.brandLogoModule="";
     document.head.appendChild(script);
+  }
+
+  function readCookie(name){
+    const prefix=`${name}=`;
+    const cookie=document.cookie
+      .split(";")
+      .map(part=>part.trim())
+      .find(part=>part.startsWith(prefix));
+    if(!cookie) return undefined;
+    try{return decodeURIComponent(cookie.slice(prefix.length));}
+    catch(_error){return cookie.slice(prefix.length);}
+  }
+
+  function createEventId(eventName){
+    const random=window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return `gaiety-${eventName.toLowerCase()}-${random}`;
+  }
+
+  function sendServerEvent(eventName,eventId,customData,{preferBeacon=false}={}){
+    const payload={
+      event_name:eventName,
+      event_id:eventId,
+      event_source_url:window.location.href,
+      fbp:readCookie("_fbp"),
+      fbc:readCookie("_fbc"),
+      ...customData
+    };
+    const body=JSON.stringify(payload);
+
+    if(preferBeacon && typeof navigator.sendBeacon==="function"){
+      try{
+        const queued=navigator.sendBeacon(
+          "/api/meta-capi",
+          new Blob([body],{type:"application/json"})
+        );
+        if(queued) return Promise.resolve(true);
+      }catch(_error){}
+    }
+
+    return fetch("/api/meta-capi",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body,
+      keepalive:true,
+      credentials:"same-origin"
+    }).then(response=>response.ok).catch(()=>false);
+  }
+
+  function trackMetaEvent(eventName,customData,options){
+    const eventId=createEventId(eventName);
+
+    if(typeof window.fbq==="function"){
+      try{
+        window.fbq("track",eventName,customData,{eventID:eventId});
+      }catch(_error){}
+    }
+
+    void sendServerEvent(eventName,eventId,customData,options);
+    return eventId;
+  }
+
+  function installViewContentTracking(section){
+    let alreadySent=false;
+    try{alreadySent=window.sessionStorage.getItem(VIEW_CONTENT_KEY)==="1";}
+    catch(_error){}
+    if(alreadySent) return;
+
+    const send=()=>{
+      try{window.sessionStorage.setItem(VIEW_CONTENT_KEY,"1");}
+      catch(_error){}
+      trackMetaEvent("ViewContent",{
+        currency:"BRL",
+        value:83,
+        content_ids:[PRODUCT_ID],
+        content_type:"product",
+        content_name:"Mushroom Complex",
+        content_category:"Foco e bem-estar"
+      });
+    };
+
+    if(!("IntersectionObserver" in window)){
+      send();
+      return;
+    }
+
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=0.25);
+      if(!visible) return;
+      observer.disconnect();
+      send();
+    },{threshold:[0.25]});
+    observer.observe(section);
   }
 
   function productVisual(twoUnits){
@@ -100,20 +200,32 @@
 
     testimonials.insertAdjacentElement("afterend",section);
     section.insertAdjacentElement("afterend",faq);
+    installViewContentTracking(section);
 
     section.querySelectorAll("[data-offer-button]").forEach(button=>{
       button.addEventListener("click",()=>{
         const units=Number(button.dataset.offerButton||0);
+        const price=units===2 ? 150 : 83;
         const checkoutUrl=button.dataset.checkoutUrl;
 
         if(window.ConversionTracker?.track){
           Promise.resolve(window.ConversionTracker.track("offer_click",{
             offer_units:units,
-            offer_price:units===2 ? 150 : 83,
+            offer_price:price,
             placement:"final_offer",
             checkout_provider:"shopify"
           })).catch(()=>null);
         }
+
+        trackMetaEvent("InitiateCheckout",{
+          currency:"BRL",
+          value:price,
+          content_ids:[VARIANT_IDS[units]],
+          content_type:"product",
+          content_name:`Mushroom Complex - ${units} ${units===1 ? "unidade" : "unidades"}`,
+          content_category:"Foco e bem-estar",
+          num_items:units
+        },{preferBeacon:true});
 
         if(checkoutUrl) window.location.assign(checkoutUrl);
       });
