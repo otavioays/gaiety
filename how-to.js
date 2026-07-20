@@ -110,6 +110,29 @@
 
     document.querySelector("#depoimentos")?.remove();
 
+    const images = [
+      {
+        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-1.png?v=1784546801",
+        width: 517,
+        height: 320,
+      },
+      {
+        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-2.png?v=1784546812",
+        width: 517,
+        height: 151,
+      },
+      {
+        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-3.png?v=1784546821",
+        width: 516,
+        height: 135,
+      },
+      {
+        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-4.png?v=1784546832",
+        width: 510,
+        height: 139,
+      },
+    ];
+
     const section = document.createElement("section");
     section.className = "customer-voices";
     section.id = "depoimentos";
@@ -117,18 +140,22 @@
     section.setAttribute("aria-labelledby", "depoimentos-titulo");
     section.innerHTML = `
       <div class="container customer-voices__inner">
-        <header class="customer-voices__heading"><h2 id="depoimentos-titulo">é isso que as pessoas estão dizendo:</h2></header>
-        <div class="customer-voices__grid">
-          <article class="social-comment">
-            <div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">BR</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Bruna Rocha</strong><p class="social-comment__text">Comecei a usar no dia 26 e já estou no segundo pacote. Os dois pedidos chegaram certinho e eu gostei muito da praticidade. Virou parte da minha rotina antes de começar o trabalho. Até agora estou bem satisfeita!</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍 8</span></div></div></div>
-            <div class="social-thread">
-              <div class="social-thread__question"><div class="social-thread__avatar" aria-hidden="true">CS</div><div><div class="social-thread__bubble"><strong>Camila Souza</strong><p>Você sentiu diferença no foco e na energia?</p></div><div class="social-thread__meta">1 sem · Curtir · Responder</div></div></div>
-              <div class="social-thread__answer"><div class="social-thread__avatar" aria-hidden="true">BR</div><div><div class="social-thread__bubble"><strong>Bruna Rocha</strong><p>Sim! Senti minha mente mais organizada e uma energia mais constante durante o dia. Também ficou mais fácil começar minhas tarefas sem enrolar tanto.</p></div><div class="social-thread__meta">1 sem · Curtir · Responder · 👍❤️ 5</div></div></div>
-            </div>
-          </article>
-          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">RM</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Renata Martins</strong><p class="social-comment__text">Eu sou extremamente desconfiada com qualquer coisa que aparece em anúncio. Ignorei várias vezes antes de comprar. Mas eu estava numa fase muito cansativa, começando várias coisas e não terminando nenhuma. O que mais me surpreendeu foi a facilidade de colocar isso na rotina. Antes de trabalhar, aplico e pronto. Para mim, isso ajudou muito a criar consistência.</p></div><div class="social-comment__meta"><span>2 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 12</span></div></div></div></article>
-          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">PN</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Patrícia Nunes</strong><p class="social-comment__text">Sério, se você vive com a cabeça cheia e pulando de tarefa em tarefa, vale experimentar. Eu passava o dia abrindo mil abas e terminava com a sensação de não ter feito nada. Depois que virou parte da minha rotina, ficou mais fácil parar, escolher uma prioridade e começar. Foi isso que mais fez diferença pra mim.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 9</span></div></div></div></article>
-          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">JF</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Juliana Freitas</strong><p class="social-comment__text">Eu estava numa fase em que lia a mesma coisa várias vezes, esquecia o que estava fazendo e terminava o dia mentalmente esgotada. Estou no segundo pacote e o que mais gostei foi a simplicidade. Coloco antes do meu primeiro bloco de trabalho e sigo meu dia. Tenho sentido mais clareza, mais constância e menos aquela sensação de estar sempre atrasada.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 11</span></div></div></div></article>
+        <header class="customer-voices__heading">
+          <h2 id="depoimentos-titulo">é isso que as pessoas estão dizendo:</h2>
+        </header>
+        <div class="customer-voices__images">
+          ${images.map((image, index) => `
+            <figure class="customer-voices__image-card">
+              <img
+                src="${image.src}"
+                width="${image.width}"
+                height="${image.height}"
+                loading="${index === 0 ? "eager" : "lazy"}"
+                decoding="async"
+                alt="Captura de tela de depoimento de cliente"
+              >
+            </figure>
+          `).join("")}
         </div>
       </div>
     `;
