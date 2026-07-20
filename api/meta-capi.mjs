@@ -1,19 +1,9 @@
 const PIXEL_ID = process.env.META_PIXEL_ID || "1002939839166097";
-const ACCESS_TOKEN = process.env.META_CAPI_ACCESS_TOKEN;
+const ACCESS_TOKEN = process.env.META_CAPI_ACCESS_TOKEN || "";
 const GRAPH_VERSION = process.env.META_GRAPH_API_VERSION || "v22.0";
 const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE || "";
 
 const ALLOWED_EVENTS = new Set(["ViewContent", "InitiateCheckout", "Lead"]);
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store, max-age=0",
-    },
-  });
-}
 
 function cleanString(value, maxLength = 300) {
   if (typeof value !== "string") return undefined;
@@ -43,18 +33,27 @@ function parseCookies(header = "") {
   }, {});
 }
 
+function getBody(request) {
+  if (request.body && typeof request.body === "object") return request.body;
+  if (typeof request.body !== "string") return {};
+  try {
+    return JSON.parse(request.body);
+  } catch {
+    return {};
+  }
+}
+
 function cleanSourceUrl(value) {
   const source = cleanString(value, 1000);
-  if (!source) return "https://gaiety.cloud/";
-
+  if (!source) return "https://www.gaiety.cloud/";
   try {
     const parsed = new URL(source);
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return "https://gaiety.cloud/";
+      return "https://www.gaiety.cloud/";
     }
     return parsed.toString();
   } catch {
-    return "https://gaiety.cloud/";
+    return "https://www.gaiety.cloud/";
   }
 }
 
@@ -70,67 +69,66 @@ function cleanContentIds(value) {
 function safeMetaError(result) {
   const error = result && typeof result === "object" ? result.error : null;
   if (!error || typeof error !== "object") return undefined;
-
   return compact({
     message: cleanString(error.message, 500),
     type: cleanString(error.type, 120),
     code: Number.isFinite(Number(error.code)) ? Number(error.code) : undefined,
-    error_subcode: Number.isFinite(Number(error.error_subcode))
-      ? Number(error.error_subcode)
-      : undefined,
+    error_subcode: Number.isFinite(Number(error.error_subcode)) ? Number(error.error_subcode) : undefined,
     fbtrace_id: cleanString(error.fbtrace_id, 120),
   });
 }
 
-function healthResponse() {
-  return json({
-    ok: true,
-    endpoint: "meta-capi",
-    handler: "vercel-fetch-default",
-    access_token_configured: Boolean(ACCESS_TOKEN),
-    test_event_code_configured: Boolean(TEST_EVENT_CODE),
-    pixel_id: PIXEL_ID,
-    graph_version: GRAPH_VERSION,
-  });
-}
+export default async function handler(request, response) {
+  response.setHeader("Cache-Control", "no-store, max-age=0");
 
-async function eventResponse(request) {
+  if (request.method === "GET") {
+    return response.status(200).json({
+      ok: true,
+      endpoint: "meta-capi",
+      handler: "vercel-node-classic",
+      access_token_configured: Boolean(ACCESS_TOKEN),
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+      pixel_id: PIXEL_ID,
+      graph_version: GRAPH_VERSION,
+    });
+  }
+
+  if (request.method !== "POST") {
+    response.setHeader("Allow", "GET, POST");
+    return response.status(405).json({
+      ok: false,
+      error: "method_not_allowed",
+      method: request.method,
+    });
+  }
+
   if (!ACCESS_TOKEN) {
-    return json(
-      {
-        ok: false,
-        error: "meta_capi_not_configured",
-        access_token_configured: false,
-        test_event_code_configured: Boolean(TEST_EVENT_CODE),
-      },
-      503,
-    );
+    return response.status(503).json({
+      ok: false,
+      error: "meta_capi_not_configured",
+      access_token_configured: false,
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+    });
   }
 
-  let body = {};
-  try {
-    body = await request.json();
-  } catch {
-    body = {};
-  }
-
+  const body = getBody(request);
   const eventName = cleanString(body.event_name, 80);
   if (!eventName || !ALLOWED_EVENTS.has(eventName)) {
-    return json({ ok: false, error: "unsupported_event" }, 400);
+    return response.status(400).json({ ok: false, error: "unsupported_event" });
   }
 
-  const cookies = parseCookies(request.headers.get("cookie") || "");
-  const forwardedFor = cleanString(request.headers.get("x-forwarded-for"), 300);
+  const cookies = parseCookies(request.headers.cookie || "");
+  const forwardedFor = cleanString(request.headers["x-forwarded-for"], 300);
   const clientIp = forwardedFor
     ? forwardedFor.split(",")[0].trim()
-    : cleanString(request.headers.get("x-real-ip"), 100);
+    : cleanString(request.headers["x-real-ip"], 100);
   const eventId = cleanString(body.event_id, 160) || crypto.randomUUID();
   const value = Number(body.value);
   const numItems = Number(body.num_items);
 
   const userData = compact({
     client_ip_address: cleanString(clientIp, 100),
-    client_user_agent: cleanString(request.headers.get("user-agent"), 1000),
+    client_user_agent: cleanString(request.headers["user-agent"], 1000),
     fbp: cleanString(body.fbp, 300) || cleanString(cookies._fbp, 300),
     fbc: cleanString(body.fbc, 300) || cleanString(cookies._fbc, 300),
   });
@@ -168,25 +166,21 @@ async function eventResponse(request) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-
     const result = await metaResponse.json().catch(() => ({}));
 
     if (!metaResponse.ok) {
-      return json(
-        {
-          ok: false,
-          error: "meta_request_failed",
-          meta_status: metaResponse.status,
-          meta_error: safeMetaError(result),
-          pixel_id: PIXEL_ID,
-          graph_version: GRAPH_VERSION,
-          test_event_code_configured: Boolean(TEST_EVENT_CODE),
-        },
-        502,
-      );
+      return response.status(502).json({
+        ok: false,
+        error: "meta_request_failed",
+        meta_status: metaResponse.status,
+        meta_error: safeMetaError(result),
+        pixel_id: PIXEL_ID,
+        graph_version: GRAPH_VERSION,
+        test_event_code_configured: Boolean(TEST_EVENT_CODE),
+      });
     }
 
-    return json({
+    return response.status(200).json({
       ok: true,
       event_id: eventId,
       event_name: eventName,
@@ -197,35 +191,13 @@ async function eventResponse(request) {
       test_event_code_configured: Boolean(TEST_EVENT_CODE),
     });
   } catch (error) {
-    return json(
-      {
-        ok: false,
-        error: "meta_transport_failed",
-        message: error instanceof Error ? error.message : "unknown_error",
-        pixel_id: PIXEL_ID,
-        graph_version: GRAPH_VERSION,
-        test_event_code_configured: Boolean(TEST_EVENT_CODE),
-      },
-      502,
-    );
+    return response.status(502).json({
+      ok: false,
+      error: "meta_transport_failed",
+      message: error instanceof Error ? error.message : "unknown_error",
+      pixel_id: PIXEL_ID,
+      graph_version: GRAPH_VERSION,
+      test_event_code_configured: Boolean(TEST_EVENT_CODE),
+    });
   }
 }
-
-export default {
-  async fetch(request) {
-    if (request.method === "GET") return healthResponse();
-    if (request.method === "POST") return eventResponse(request);
-
-    return new Response(
-      JSON.stringify({ ok: false, error: "method_not_allowed", method: request.method }),
-      {
-        status: 405,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "no-store, max-age=0",
-          Allow: "GET, POST",
-        },
-      },
-    );
-  },
-};
