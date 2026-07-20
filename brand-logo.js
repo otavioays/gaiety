@@ -8,9 +8,12 @@
     const style=document.createElement("style");
     style.dataset.brandLogoStyle="";
     style.textContent=`
+      .site-header{background:rgba(253,236,242,.96);border-bottom-color:rgba(54,0,68,.08)}
+      .site-header.is-scrolled{background:rgba(253,236,242,.98);border-bottom-color:rgba(54,0,68,.14);box-shadow:0 8px 28px rgba(54,0,68,.08)}
       .brand.brand--image{display:inline-flex;width:80px;height:68px;align-items:center;justify-content:center;overflow:visible}
-      .brand-logo-viewport{position:relative;display:block;width:80px;height:68px;overflow:hidden;border-radius:12px;flex:0 0 auto}
+      .brand-logo-viewport{position:relative;display:block;width:80px;height:68px;overflow:hidden;border-radius:12px;flex:0 0 auto;background:#fdecf2}
       .brand-logo-viewport img{position:absolute;top:50%;left:50%;width:132px;max-width:none;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 5px 10px rgba(54,0,68,.08))}
+      .menu-toggle{background:#fdecf2}
       @media(max-width:700px){
         .brand.brand--image{width:68px;height:58px}
         .brand-logo-viewport{width:68px;height:58px;border-radius:10px}
