@@ -2,6 +2,7 @@
   "use strict";
 
   const STYLE_MARKER = "data-final-offer-style";
+  const META_PIXEL_ID = "1725992278652713";
   const PRODUCT_ID = "15917657129329";
   const VARIANT_IDS = {
     1: "64223935332721",
@@ -11,7 +12,8 @@
     1: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[1]}:1?checkout`,
     2: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[2]}:1?checkout`
   };
-  const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v1";
+  const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v2";
+  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v2";
 
   function loadStyle(){
     if(document.querySelector(`link[${STYLE_MARKER}]`)) return;
@@ -49,6 +51,31 @@
     if(!cookie) return undefined;
     try{return decodeURIComponent(cookie.slice(prefix.length));}
     catch(_error){return cookie.slice(prefix.length);}
+  }
+
+  function ensureCorrectMetaPixel(){
+    if(typeof window.fbq!=="function") return false;
+
+    try{
+      if(!window.__gaietyMetaPixelInitialized){
+        window.fbq("init",META_PIXEL_ID);
+        window.__gaietyMetaPixelInitialized=true;
+      }
+
+      let pageViewSent=false;
+      try{pageViewSent=window.sessionStorage.getItem(PAGE_VIEW_KEY)==="1";}
+      catch(_error){}
+
+      if(!pageViewSent){
+        window.fbq("trackSingle",META_PIXEL_ID,"PageView");
+        try{window.sessionStorage.setItem(PAGE_VIEW_KEY,"1");}
+        catch(_error){}
+      }
+
+      return true;
+    }catch(_error){
+      return false;
+    }
   }
 
   function createEventId(eventName){
@@ -91,9 +118,9 @@
   function trackMetaEvent(eventName,customData,options){
     const eventId=createEventId(eventName);
 
-    if(typeof window.fbq==="function"){
+    if(ensureCorrectMetaPixel()){
       try{
-        window.fbq("track",eventName,customData,{eventID:eventId});
+        window.fbq("trackSingle",META_PIXEL_ID,eventName,customData,{eventID:eventId});
       }catch(_error){}
     }
 
@@ -107,7 +134,10 @@
     catch(_error){}
     if(alreadySent) return;
 
+    let sent=false;
     const send=()=>{
+      if(sent) return;
+      sent=true;
       try{window.sessionStorage.setItem(VIEW_CONTENT_KEY,"1");}
       catch(_error){}
       trackMetaEvent("ViewContent",{
@@ -120,10 +150,9 @@
       });
     };
 
-    if(!("IntersectionObserver" in window)){
-      send();
-      return;
-    }
+    window.setTimeout(send,800);
+
+    if(!("IntersectionObserver" in window)) return;
 
     const observer=new IntersectionObserver(entries=>{
       const visible=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=0.25);
@@ -235,6 +264,7 @@
   }
 
   function initialize(){
+    ensureCorrectMetaPixel();
     loadStyle();
     loadFaqModule();
     loadBrandLogoModule();
