@@ -25,15 +25,83 @@
     : "https://analise-de-dados-fbads.vercel.app/tracker.js";
 
   const OFFER = Object.freeze({
-    product_id: "ritual-nitido",
-    product_name: "Ritual Nítido (pré-lançamento)",
-    offer_stage: "validation_waitlist",
-    page_version: "ritual-nitido-prelaunch-v1",
+    product_id: "15917657129329",
+    product_name: "Mushroom Complex",
+    product_category: "Foco e bem-estar",
+    offer_stage: "direct_sale",
+    page_version: "gaiety-mushroom-complex-v1",
     currency: "BRL",
-    price: null,
+    entry_price: 83,
+    meta_pixel_id: "1725992278652713",
+    storefront: "gaiety.cloud",
+    checkout_provider: "shopify",
   });
 
-  const IMPRESSION_KEY = "gaiety_ritual_cta_impressions_v1";
+  const IMPRESSION_KEY = "gaiety_offer_cta_impressions_v2";
+  const STORAGE_PREFIX = "fbads_conversion_tracker";
+
+  function safeJson(value) {
+    if (!value) return null;
+    try {
+      return JSON.parse(value);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function readStorage(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function currentAttribution() {
+    const current = new URLSearchParams(window.location.search);
+    const sessionAttribution = safeJson(
+      readStorage(`${STORAGE_PREFIX}_session_attribution_v2`),
+    );
+    const firstTouch = safeJson(readStorage(`${STORAGE_PREFIX}_first_touch`));
+    const stored = sessionAttribution?.attribution || firstTouch || {};
+
+    return {
+      utm_source: current.get("utm_source") || stored.utm_source || null,
+      utm_medium: current.get("utm_medium") || stored.utm_medium || null,
+      utm_campaign: current.get("utm_campaign") || stored.utm_campaign || null,
+      utm_content: current.get("utm_content") || stored.utm_content || null,
+      utm_term: current.get("utm_term") || stored.utm_term || null,
+      fbclid: current.get("fbclid") || stored.fbclid || null,
+    };
+  }
+
+  function storedTrackerContext() {
+    const session = safeJson(readStorage(`${STORAGE_PREFIX}_session_v2`));
+    return {
+      visitor_id: readStorage(`${STORAGE_PREFIX}_visitor_id`) || null,
+      session_id: session?.id || null,
+    };
+  }
+
+  function trackerContext(tracker) {
+    const stored = storedTrackerContext();
+    let visitorId = stored.visitor_id;
+    let sessionId = stored.session_id;
+    let pageInstanceId = null;
+
+    try {
+      visitorId = tracker?.getVisitorId?.() || visitorId;
+      sessionId = tracker?.getSessionId?.() || sessionId;
+      pageInstanceId = tracker?.getPageInstanceId?.() || null;
+    } catch (_error) {}
+
+    return {
+      ct_visitor_id: visitorId,
+      ct_session_id: sessionId,
+      ct_page_instance_id: pageInstanceId,
+      ...currentAttribution(),
+    };
+  }
 
   function loadTracker() {
     if (window.ConversionTracker && typeof window.ConversionTracker.track === "function") {
@@ -54,7 +122,7 @@
         }
 
         attempts += 1;
-        if (attempts >= 60) {
+        if (attempts >= 100) {
           resolve(null);
           return;
         }
@@ -67,6 +135,8 @@
         script.dataset.gaietyConversionTracker = "true";
         script.dataset.debug = "false";
         script.dataset.sessionTimeoutMinutes = "30";
+        script.dataset.autoPageView = "true";
+        script.dataset.autoBehavior = "true";
         script.addEventListener("load", finishWhenReady, { once: true });
         script.addEventListener("error", () => resolve(null), { once: true });
         document.head.appendChild(script);
@@ -78,13 +148,84 @@
     return window.__gaietyConversionTrackerPromise;
   }
 
-  function track(name, properties) {
+  function track(name, properties, options) {
     return loadTracker()
       .then((tracker) => {
-        if (!tracker) return null;
-        return tracker.track(name, Object.assign({}, OFFER, properties || {}));
+        if (!tracker) return false;
+        return tracker.track(
+          name,
+          Object.assign({}, OFFER, trackerContext(tracker), properties || {}),
+          options || {},
+        );
       })
-      .catch(() => null);
+      .catch(() => false);
+  }
+
+  function checkoutContext(extra) {
+    return Object.assign(
+      {},
+      OFFER,
+      trackerContext(window.ConversionTracker),
+      {
+        ct_origin: "gaiety",
+        source_page_url: window.location.href,
+      },
+      extra || {},
+    );
+  }
+
+  function buildCheckoutUrl(baseUrl, extra) {
+    try {
+      const context = checkoutContext(extra);
+      const url = new URL(baseUrl, window.location.href);
+      const directKeys = [
+        "ct_visitor_id",
+        "ct_session_id",
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_content",
+        "utm_term",
+        "fbclid",
+      ];
+
+      directKeys.forEach((key) => {
+        const value = context[key];
+        if (value !== null && value !== undefined && value !== "") {
+          url.searchParams.set(key, String(value));
+        }
+      });
+
+      const attributeMap = {
+        ct_visitor_id: context.ct_visitor_id,
+        ct_session_id: context.ct_session_id,
+        ct_page_instance_id: context.ct_page_instance_id,
+        ct_origin: context.ct_origin,
+        ct_product_id: context.product_id,
+        ct_variant_id: context.variant_id,
+        ct_offer_units: context.offer_units,
+        ct_utm_source: context.utm_source,
+        ct_utm_medium: context.utm_medium,
+        ct_utm_campaign: context.utm_campaign,
+        ct_utm_content: context.utm_content,
+        ct_utm_term: context.utm_term,
+        ct_fbclid: context.fbclid,
+      };
+
+      Object.entries(attributeMap).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          url.searchParams.set(`attributes[${key}]`, String(value));
+        }
+      });
+
+      url.searchParams.set("ref", "gaiety");
+      return url
+        .toString()
+        .replace("?checkout=&", "?checkout&")
+        .replace("&checkout=&", "&checkout&");
+    } catch (_error) {
+      return baseUrl;
+    }
   }
 
   function ctaProperties(element) {
@@ -92,7 +233,7 @@
       placement: element.dataset.cta || "unknown",
       element_text: (element.textContent || "").trim().replace(/\s+/g, " ").slice(0, 180) || null,
       destination: element.getAttribute("href") || null,
-      cta_goal: "validation_waitlist",
+      cta_goal: "offer",
       pii_included: false,
       tracker_channel: usePreviewTracker ? "preview" : "production",
     };
@@ -109,9 +250,7 @@
   function writeImpressions(value) {
     try {
       window.sessionStorage.setItem(IMPRESSION_KEY, JSON.stringify(value));
-    } catch (_error) {
-      // Storage can be unavailable in privacy modes; tracking still proceeds.
-    }
+    } catch (_error) {}
   }
 
   function installCtaTracking() {
@@ -125,7 +264,7 @@
         if (!target || typeof target.closest !== "function") return;
         const cta = target.closest("[data-cta]");
         if (!cta) return;
-        track("waitlist_cta_click", ctaProperties(cta));
+        void track("cta_click", ctaProperties(cta), { beacon: true });
       },
       true,
     );
@@ -137,7 +276,7 @@
       if (sent[key]) return;
       sent[key] = new Date().toISOString();
       writeImpressions(sent);
-      track("cta_impression", ctaProperties(cta));
+      void track("cta_impression", ctaProperties(cta));
     };
 
     if (!("IntersectionObserver" in window)) {
@@ -159,7 +298,14 @@
     ctas.forEach((cta) => observer.observe(cta));
   }
 
-  window.GaietyTracking = Object.freeze({ track, offer: OFFER });
+  window.GaietyTracking = Object.freeze({
+    track,
+    ready: loadTracker,
+    offer: OFFER,
+    context: checkoutContext,
+    buildCheckoutUrl,
+  });
+
   loadTracker();
 
   if (document.readyState === "loading") {
