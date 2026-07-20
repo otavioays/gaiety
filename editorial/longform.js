@@ -77,7 +77,7 @@
   ]);
 
   function escapeHtml(value) {
-    return value.replace(/[&<>"]/g, char => ({
+    return value.replace(/[&<>\"]/g, char => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -95,7 +95,18 @@
   }
 
   function ctaTarget() {
-    return "https://gaiety.cloud/";
+    const target = new URL("https://gaiety.cloud/");
+    const current = new URLSearchParams(window.location.search);
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"].forEach(key => {
+      const value = current.get(key);
+      if (value) target.searchParams.set(key, value);
+    });
+    target.searchParams.set("ct_entry", "funnel");
+    target.searchParams.set("ct_funnel", "editorial");
+    target.searchParams.set("ct_page_type", "funnel");
+    target.searchParams.set("ct_funnel_id", "gaiety_modo_claro");
+    target.searchParams.set("ct_funnel_page", "nitida_editorial");
+    return target.toString();
   }
 
   function buildArticle(lines) {
@@ -113,7 +124,7 @@
         fragments.push('<section class="verdict-box"><p class="verdict-label">VEREDITO EDITORIAL</p><h2>Vale a pena conhecer o Gaiety Modo Claro?</h2>');
       } else if (line.startsWith("→ ")) {
         const label = line.slice(2);
-        fragments.push(`<a class="editorial-cta" href="${ctaTarget()}" rel="nofollow"><span>${escapeHtml(label)}</span><strong>→</strong></a>`);
+        fragments.push(`<a class="editorial-cta" data-funnel-cta="editorial" href="${ctaTarget()}" rel="nofollow"><span>${escapeHtml(label)}</span><strong>→</strong></a>`);
       } else if (PULL_QUOTES.has(line)) {
         fragments.push(`<p class="pull-quote">${escapeHtml(line)}</p>`);
       } else {
