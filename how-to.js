@@ -1,35 +1,204 @@
-(function installRitualSections(){
-"use strict";
-function loadStylesheet(href,datasetKey){if(document.querySelector(`link[${datasetKey}]`))return;const stylesheet=document.createElement("link");stylesheet.rel="stylesheet";stylesheet.href=href;stylesheet.setAttribute(datasetKey,"");document.head.appendChild(stylesheet)}
-function trimPageAfterHowTo(){const main=document.querySelector("main");const howTo=document.querySelector("#como-usar");const faq=document.querySelector("#duvidas");if(!main||!howTo||!faq)return;let reachedHowTo=false;Array.from(main.children).forEach(section=>{if(section===howTo){reachedHowTo=true;return}if(!reachedHowTo||section===faq)return;section.remove()});if(howTo.nextElementSibling!==faq)howTo.insertAdjacentElement("afterend",faq);document.querySelectorAll("[data-mobile-dock], [data-desktop-dock]").forEach(element=>element.remove());const removedTargets=new Set(["#problema","#mecanismo","#produto","#provas","#lista","#qualificacao"]);document.querySelectorAll("a[href^='#']").forEach(link=>{if(removedTargets.has(link.getAttribute("href")))link.remove()});const faqUpdateLink=faq.querySelector(".faq-heading .text-link");if(faqUpdateLink)faqUpdateLink.remove()}
-function installCornerPhotos(){document.querySelectorAll(".sales-corner-photo").forEach(element=>element.remove());const hero=document.querySelector(".hero");const faq=document.querySelector("#duvidas");const source="assets/sales-corner-photo.svg?v=7";function appendPhoto(parent,position,loading){if(!parent)return;const image=document.createElement("img");image.className=`sales-corner-photo sales-corner-photo--${position}`;image.src=source;image.alt="";image.width=520;image.height=650;image.loading=loading;image.decoding="async";image.setAttribute("aria-hidden","true");parent.appendChild(image)}appendPhoto(hero,"top-left","eager");appendPhoto(hero,"top-right","eager");appendPhoto(faq,"bottom-left","lazy");appendPhoto(faq,"bottom-right","lazy")}
-function installTestimonials(){const faq=document.querySelector("#duvidas");if(!faq||document.querySelector("#depoimentos"))return;const section=document.createElement("section");section.className="customer-voices";section.id="depoimentos";section.dataset.section="testimonials";section.setAttribute("aria-labelledby","depoimentos-titulo");section.innerHTML=`
-<div class="container customer-voices__inner">
-<header class="customer-voices__heading"><h2 id="depoimentos-titulo">é isso que as pessoas estão dizendo:</h2></header>
-<div class="customer-voices__grid">
-<article class="social-comment">
-<div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">BR</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Bruna Rocha</strong><p class="social-comment__text">Comecei a usar no dia 26 e já estou no segundo pacote. Os dois pedidos chegaram certinho e eu gostei muito da praticidade. Virou parte da minha rotina antes de começar o trabalho. Até agora estou bem satisfeita!</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍 8</span></div></div></div>
-<div class="social-thread">
-<div class="social-thread__question"><div class="social-thread__avatar" aria-hidden="true">CS</div><div><div class="social-thread__bubble"><strong>Camila Souza</strong><p>Você sentiu diferença no foco e na energia?</p></div><div class="social-thread__meta">1 sem · Curtir · Responder</div></div></div>
-<div class="social-thread__answer"><div class="social-thread__avatar" aria-hidden="true">BR</div><div><div class="social-thread__bubble"><strong>Bruna Rocha</strong><p>Sim! Senti minha mente mais organizada e uma energia mais constante durante o dia. Também ficou mais fácil começar minhas tarefas sem enrolar tanto.</p></div><div class="social-thread__meta">1 sem · Curtir · Responder · 👍❤️ 5</div></div></div>
-</div>
-</article>
-<article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">RM</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Renata Martins</strong><p class="social-comment__text">Eu sou extremamente desconfiada com qualquer coisa que aparece em anúncio. Ignorei várias vezes antes de comprar. Mas eu estava numa fase muito cansativa, começando várias coisas e não terminando nenhuma. O que mais me surpreendeu foi a facilidade de colocar isso na rotina. Antes de trabalhar, aplico e pronto. Para mim, isso ajudou muito a criar consistência.</p></div><div class="social-comment__meta"><span>2 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 12</span></div></div></div></article>
-<article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">PN</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Patrícia Nunes</strong><p class="social-comment__text">Sério, se você vive com a cabeça cheia e pulando de tarefa em tarefa, vale experimentar. Eu passava o dia abrindo mil abas e terminava com a sensação de não ter feito nada. Depois que virou parte da minha rotina, ficou mais fácil parar, escolher uma prioridade e começar. Foi isso que mais fez diferença pra mim.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 9</span></div></div></div></article>
-<article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">JF</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Juliana Freitas</strong><p class="social-comment__text">Eu estava numa fase em que lia a mesma coisa várias vezes, esquecia o que estava fazendo e terminava o dia mentalmente esgotada. Estou no segundo pacote e o que mais gostei foi a simplicidade. Coloco antes do meu primeiro bloco de trabalho e sigo meu dia. Tenho sentido mais clareza, mais constância e menos aquela sensação de estar sempre atrasada.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 11</span></div></div></div></article>
-</div></div>`;faq.parentNode.insertBefore(section,faq)}
-loadStylesheet("ingredient-grid.css?v=ritual-1","data-ingredient-grid-style");loadStylesheet("how-to.css?v=ritual-1","data-how-to-style");loadStylesheet("sales-corners.css?v=ritual-7","data-sales-corners-style");loadStylesheet("testimonials.css?v=ritual-1","data-testimonials-style");
-if(!document.querySelector("#ingredientes-em-destaque")){const blendSection=document.createElement("section");blendSection.className="blend-showcase";blendSection.id="ingredientes-em-destaque";blendSection.dataset.section="ingredient-comparison";blendSection.setAttribute("aria-labelledby","ingredientes-titulo");blendSection.innerHTML=`
-<div class="blend-showcase__product" aria-hidden="true"><img src="assets/mushroom-complex-patch.png" width="346" height="402" loading="lazy" decoding="async" alt=""></div>
-<div class="blend-showcase__jar" aria-hidden="true"><div class="blend-showcase__patches"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-<div class="container blend-showcase__inner"><header class="blend-showcase__heading"><h2 id="ingredientes-titulo">Conheça 6 dos Cogumelos Funcionais Escolhidos Para Enfrentar <em>OS MAIORES</em> Ladrões do Seu Ritmo</h2><p>Cada ingrediente ocupa uma frente diferente dentro do Ritual Nítido.</p></header><div class="blend-showcase__grid">
-<article class="blend-card"><header class="blend-card__head"><h3>Juba-de-leão</h3><span class="blend-card__badge" aria-hidden="true">🧠</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🦁</span><small>Clareza mental</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🗂️</span><small>Abas abertas</small></div></div><footer class="blend-card__foot">ESTUDADO EM ATENÇÃO, MEMÓRIA E VELOCIDADE MENTAL</footer></article>
-<article class="blend-card"><header class="blend-card__head"><h3>Cordyceps</h3><span class="blend-card__badge" aria-hidden="true">⚡</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">⚡</span><small>Sustentação</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🪫</span><small>Energia no fim</small></div></div><footer class="blend-card__foot">PESQUISADO EM ENERGIA, RESISTÊNCIA E DESEMPENHO</footer></article>
-<article class="blend-card"><header class="blend-card__head"><h3>Reishi</h3><span class="blend-card__badge" aria-hidden="true">🌙</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🌙</span><small>Equilíbrio</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🌫️</span><small>Fadiga mental</small></div></div><footer class="blend-card__foot">INVESTIGADO EM FADIGA, BEM-ESTAR E RECUPERAÇÃO</footer></article>
-<article class="blend-card"><header class="blend-card__head"><h3>Chaga</h3><span class="blend-card__badge" aria-hidden="true">🛡️</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🛡️</span><small>Proteção</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">💥</span><small>Desgaste diário</small></div></div><footer class="blend-card__foot">FONTE DE COMPOSTOS ANTIOXIDANTES INVESTIGADOS</footer></article>
-<article class="blend-card"><header class="blend-card__head"><h3>Maitake</h3><span class="blend-card__badge" aria-hidden="true">✨</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">✨</span><small>Continuidade</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">↗️↙️</span><small>Ritmo irregular</small></div></div><footer class="blend-card__foot">PESQUISADO EM SUPORTE COGNITIVO E ENVELHECIMENTO</footer></article>
-<article class="blend-card"><header class="blend-card__head"><h3>Shiitake</h3><span class="blend-card__badge" aria-hidden="true">🌿</span></header><div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🌿</span><small>Vitalidade</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🥀</span><small>Rotina sem base</small></div></div><footer class="blend-card__foot">INGREDIENTE FUNCIONAL LIGADO A VITALIDADE E DEFESA</footer></article>
-</div><p class="blend-showcase__note">Os estudos citados na linha do tempo avaliaram ingredientes e preparações específicas. A seção apresenta o papel estratégico de cada ingrediente dentro da proposta do blend.</p></div>`;const timeline=document.querySelector(".attention-evidence");const problem=document.querySelector("#problema");const main=document.querySelector("main");if(timeline&&timeline.parentNode)timeline.insertAdjacentElement("afterend",blendSection);else if(problem&&problem.parentNode)problem.parentNode.insertBefore(blendSection,problem);else if(main)main.appendChild(blendSection)}
-if(!document.querySelector("#como-usar")){const section=document.createElement("section");section.className="how-to";section.id="como-usar";section.dataset.section="how-to";section.setAttribute("aria-labelledby","como-usar-titulo");section.innerHTML=`<span class="how-to-splash" aria-hidden="true"></span><div class="container"><header class="how-to-heading"><span class="eyebrow">Ritual em 3 passos</span><h2 id="como-usar-titulo">Como usar o patch</h2><p>Uma aplicação simples, rápida e sem complicação.</p></header><div class="how-to-rail" aria-hidden="true"><span class="how-to-number">1</span><span class="how-to-number">2</span><span class="how-to-number">3</span></div><div class="how-to-grid"><article class="how-to-step" data-step="1"><figure><div class="how-to-image"><img src="assets/how-to-step-1.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa retirando o patch da película protetora"></div><figcaption><h3>Retire o patch da película protetora.</h3></figcaption></figure></article><article class="how-to-step" data-step="2"><figure><div class="how-to-image"><img src="assets/how-to-step-2.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa aplicando o patch sobre a parte superior do braço"></div><figcaption><h3>Aplique sobre a pele limpa e seca do braço.</h3></figcaption></figure></article><article class="how-to-step" data-step="3"><figure><div class="how-to-image"><img src="assets/how-to-step-3.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa pressionando o patch para fixá-lo na pele"></div><figcaption><h3>Pressione toda a superfície até ficar bem fixado.</h3></figcaption></figure></article></div><p class="how-to-note">Prefira uma área sem pelos e não aplique sobre pele irritada. Siga o tempo de uso indicado na embalagem.</p></div>`;const target=document.querySelector("#problema")||document.querySelector("#mecanismo")||document.querySelector("#produto");const main=document.querySelector("main");if(target&&target.parentNode)target.parentNode.insertBefore(section,target);else if(main)main.appendChild(section)}
-trimPageAfterHowTo();installTestimonials();installCornerPhotos();
+(function installRitualSections() {
+  "use strict";
+
+  function loadStylesheet(path, marker) {
+    if (document.querySelector(`link[${marker}]`)) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `${path}?v=${Date.now()}`;
+    link.setAttribute(marker, "");
+    document.head.appendChild(link);
+  }
+
+  function installIngredientGrid() {
+    if (document.querySelector("#ingredientes-em-destaque")) return;
+
+    const section = document.createElement("section");
+    section.className = "blend-showcase";
+    section.id = "ingredientes-em-destaque";
+    section.dataset.section = "ingredient-comparison";
+    section.setAttribute("aria-labelledby", "ingredientes-titulo");
+    section.innerHTML = `
+      <div class="blend-showcase__product" aria-hidden="true">
+        <img src="assets/mushroom-complex-patch.png" width="346" height="402" loading="lazy" decoding="async" alt="">
+      </div>
+      <div class="blend-showcase__jar" aria-hidden="true">
+        <div class="blend-showcase__patches"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="container blend-showcase__inner">
+        <header class="blend-showcase__heading">
+          <h2 id="ingredientes-titulo">Conheça 6 dos Cogumelos Funcionais Escolhidos Para Enfrentar <em>OS MAIORES</em> Ladrões do Seu Ritmo</h2>
+          <p>Cada ingrediente ocupa uma frente diferente dentro do Ritual Nítido.</p>
+        </header>
+        <div class="blend-showcase__grid">
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Juba-de-leão</h3><span class="blend-card__badge" aria-hidden="true">🧠</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🦁</span><small>Clareza mental</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🗂️</span><small>Abas abertas</small></div></div>
+            <footer class="blend-card__foot">ESTUDADO EM ATENÇÃO, MEMÓRIA E VELOCIDADE MENTAL</footer>
+          </article>
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Cordyceps</h3><span class="blend-card__badge" aria-hidden="true">⚡</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">⚡</span><small>Sustentação</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🪫</span><small>Energia no fim</small></div></div>
+            <footer class="blend-card__foot">PESQUISADO EM ENERGIA, RESISTÊNCIA E DESEMPENHO</footer>
+          </article>
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Reishi</h3><span class="blend-card__badge" aria-hidden="true">🌙</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🌙</span><small>Equilíbrio</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🌫️</span><small>Fadiga mental</small></div></div>
+            <footer class="blend-card__foot">INVESTIGADO EM FADIGA, BEM-ESTAR E RECUPERAÇÃO</footer>
+          </article>
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Chaga</h3><span class="blend-card__badge" aria-hidden="true">🛡️</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🛡️</span><small>Proteção</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">💥</span><small>Desgaste diário</small></div></div>
+            <footer class="blend-card__foot">FONTE DE COMPOSTOS ANTIOXIDANTES INVESTIGADOS</footer>
+          </article>
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Maitake</h3><span class="blend-card__badge" aria-hidden="true">✨</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">✨</span><small>Continuidade</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">↗️↙️</span><small>Ritmo irregular</small></div></div>
+            <footer class="blend-card__foot">PESQUISADO EM SUPORTE COGNITIVO E ENVELHECIMENTO</footer>
+          </article>
+          <article class="blend-card">
+            <header class="blend-card__head"><h3>Shiitake</h3><span class="blend-card__badge" aria-hidden="true">🌿</span></header>
+            <div class="blend-card__body"><div class="blend-card__icon"><span aria-hidden="true">🌿</span><small>Vitalidade</small></div><strong class="blend-card__vs">VS</strong><div class="blend-card__obstacle"><span aria-hidden="true">🥀</span><small>Rotina sem base</small></div></div>
+            <footer class="blend-card__foot">INGREDIENTE FUNCIONAL LIGADO A VITALIDADE E DEFESA</footer>
+          </article>
+        </div>
+        <p class="blend-showcase__note">Os estudos citados na linha do tempo avaliaram ingredientes e preparações específicas. A seção apresenta o papel estratégico de cada ingrediente dentro da proposta do blend.</p>
+      </div>
+    `;
+
+    const timeline = document.querySelector(".attention-evidence");
+    const fallback = document.querySelector("#problema");
+    if (timeline) timeline.insertAdjacentElement("afterend", section);
+    else if (fallback) fallback.insertAdjacentElement("beforebegin", section);
+    else document.querySelector("main")?.appendChild(section);
+  }
+
+  function installHowTo() {
+    if (document.querySelector("#como-usar")) return;
+
+    const section = document.createElement("section");
+    section.className = "how-to";
+    section.id = "como-usar";
+    section.dataset.section = "how-to";
+    section.setAttribute("aria-labelledby", "como-usar-titulo");
+    section.innerHTML = `
+      <span class="how-to-splash" aria-hidden="true"></span>
+      <div class="container">
+        <header class="how-to-heading">
+          <span class="eyebrow">Ritual em 3 passos</span>
+          <h2 id="como-usar-titulo">Como usar o patch</h2>
+          <p>Uma aplicação simples, rápida e sem complicação.</p>
+        </header>
+        <div class="how-to-rail" aria-hidden="true"><span class="how-to-number">1</span><span class="how-to-number">2</span><span class="how-to-number">3</span></div>
+        <div class="how-to-grid">
+          <article class="how-to-step" data-step="1"><figure><div class="how-to-image"><img src="assets/how-to-step-1.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa retirando o patch da película protetora"></div><figcaption><h3>Retire o patch da película protetora.</h3></figcaption></figure></article>
+          <article class="how-to-step" data-step="2"><figure><div class="how-to-image"><img src="assets/how-to-step-2.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa aplicando o patch sobre a parte superior do braço"></div><figcaption><h3>Aplique sobre a pele limpa e seca do braço.</h3></figcaption></figure></article>
+          <article class="how-to-step" data-step="3"><figure><div class="how-to-image"><img src="assets/how-to-step-3.svg" width="320" height="400" loading="lazy" decoding="async" alt="Pessoa pressionando o patch para fixá-lo na pele"></div><figcaption><h3>Pressione toda a superfície até ficar bem fixado.</h3></figcaption></figure></article>
+        </div>
+        <p class="how-to-note">Prefira uma área sem pelos e não aplique sobre pele irritada. Siga o tempo de uso indicado na embalagem.</p>
+      </div>
+    `;
+
+    const target = document.querySelector("#problema") || document.querySelector("#mecanismo") || document.querySelector("#produto");
+    if (target) target.insertAdjacentElement("beforebegin", section);
+    else document.querySelector("main")?.appendChild(section);
+  }
+
+  function installTestimonials() {
+    const faq = document.querySelector("#duvidas");
+    if (!faq) return;
+
+    document.querySelector("#depoimentos")?.remove();
+
+    const section = document.createElement("section");
+    section.className = "customer-voices";
+    section.id = "depoimentos";
+    section.dataset.section = "testimonials";
+    section.setAttribute("aria-labelledby", "depoimentos-titulo");
+    section.innerHTML = `
+      <div class="container customer-voices__inner">
+        <header class="customer-voices__heading"><h2 id="depoimentos-titulo">é isso que as pessoas estão dizendo:</h2></header>
+        <div class="customer-voices__grid">
+          <article class="social-comment">
+            <div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">BR</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Bruna Rocha</strong><p class="social-comment__text">Comecei a usar no dia 26 e já estou no segundo pacote. Os dois pedidos chegaram certinho e eu gostei muito da praticidade. Virou parte da minha rotina antes de começar o trabalho. Até agora estou bem satisfeita!</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍 8</span></div></div></div>
+            <div class="social-thread">
+              <div class="social-thread__question"><div class="social-thread__avatar" aria-hidden="true">CS</div><div><div class="social-thread__bubble"><strong>Camila Souza</strong><p>Você sentiu diferença no foco e na energia?</p></div><div class="social-thread__meta">1 sem · Curtir · Responder</div></div></div>
+              <div class="social-thread__answer"><div class="social-thread__avatar" aria-hidden="true">BR</div><div><div class="social-thread__bubble"><strong>Bruna Rocha</strong><p>Sim! Senti minha mente mais organizada e uma energia mais constante durante o dia. Também ficou mais fácil começar minhas tarefas sem enrolar tanto.</p></div><div class="social-thread__meta">1 sem · Curtir · Responder · 👍❤️ 5</div></div></div>
+            </div>
+          </article>
+          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">RM</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Renata Martins</strong><p class="social-comment__text">Eu sou extremamente desconfiada com qualquer coisa que aparece em anúncio. Ignorei várias vezes antes de comprar. Mas eu estava numa fase muito cansativa, começando várias coisas e não terminando nenhuma. O que mais me surpreendeu foi a facilidade de colocar isso na rotina. Antes de trabalhar, aplico e pronto. Para mim, isso ajudou muito a criar consistência.</p></div><div class="social-comment__meta"><span>2 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 12</span></div></div></div></article>
+          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">PN</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Patrícia Nunes</strong><p class="social-comment__text">Sério, se você vive com a cabeça cheia e pulando de tarefa em tarefa, vale experimentar. Eu passava o dia abrindo mil abas e terminava com a sensação de não ter feito nada. Depois que virou parte da minha rotina, ficou mais fácil parar, escolher uma prioridade e começar. Foi isso que mais fez diferença pra mim.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 9</span></div></div></div></article>
+          <article class="social-comment"><div class="social-comment__row"><div class="social-comment__avatar" aria-hidden="true">JF</div><div><div class="social-comment__bubble"><strong class="social-comment__name">Juliana Freitas</strong><p class="social-comment__text">Eu estava numa fase em que lia a mesma coisa várias vezes, esquecia o que estava fazendo e terminava o dia mentalmente esgotada. Estou no segundo pacote e o que mais gostei foi a simplicidade. Coloco antes do meu primeiro bloco de trabalho e sigo meu dia. Tenho sentido mais clareza, mais constância e menos aquela sensação de estar sempre atrasada.</p></div><div class="social-comment__meta"><span>1 sem</span><strong>Curtir</strong><span>Responder</span><span class="social-comment__reactions">👍❤️ 11</span></div></div></div></article>
+        </div>
+      </div>
+    `;
+
+    faq.insertAdjacentElement("beforebegin", section);
+  }
+
+  function trimAfterHowTo() {
+    const main = document.querySelector("main");
+    const howTo = document.querySelector("#como-usar");
+    const testimonials = document.querySelector("#depoimentos");
+    const faq = document.querySelector("#duvidas");
+    if (!main || !howTo || !testimonials || !faq) return;
+
+    Array.from(main.children).forEach((element) => {
+      const keep = element === howTo || element === testimonials || element === faq;
+      const beforeHowTo = element.compareDocumentPosition(howTo) & Node.DOCUMENT_POSITION_FOLLOWING;
+      if (!beforeHowTo && !keep) element.remove();
+    });
+
+    howTo.insertAdjacentElement("afterend", testimonials);
+    testimonials.insertAdjacentElement("afterend", faq);
+
+    document.querySelectorAll("[data-mobile-dock], [data-desktop-dock]").forEach((element) => element.remove());
+    document.querySelectorAll('a[href="#problema"], a[href="#mecanismo"], a[href="#produto"], a[href="#provas"], a[href="#lista"], a[href="#qualificacao"]').forEach((element) => element.remove());
+    faq.querySelector(".faq-heading .text-link")?.remove();
+  }
+
+  function installCornerPhotos() {
+    document.querySelectorAll(".sales-corner-photo").forEach((element) => element.remove());
+    const source = `assets/sales-corner-photo.svg?v=${Date.now()}`;
+    const hero = document.querySelector(".hero");
+    const faq = document.querySelector("#duvidas");
+
+    function append(parent, position, loading) {
+      if (!parent) return;
+      const image = document.createElement("img");
+      image.className = `sales-corner-photo sales-corner-photo--${position}`;
+      image.src = source;
+      image.alt = "";
+      image.width = 520;
+      image.height = 650;
+      image.loading = loading;
+      image.decoding = "async";
+      image.setAttribute("aria-hidden", "true");
+      parent.appendChild(image);
+    }
+
+    append(hero, "top-left", "eager");
+    append(hero, "top-right", "eager");
+    append(faq, "bottom-left", "lazy");
+    append(faq, "bottom-right", "lazy");
+  }
+
+  function initialize() {
+    loadStylesheet("ingredient-grid.css", "data-ingredient-grid-style");
+    loadStylesheet("how-to.css", "data-how-to-style");
+    loadStylesheet("sales-corners.css", "data-sales-corners-style");
+    loadStylesheet("testimonials.css", "data-testimonials-style");
+
+    installIngredientGrid();
+    installHowTo();
+    installTestimonials();
+    trimAfterHowTo();
+    installCornerPhotos();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
+  }
 })();
