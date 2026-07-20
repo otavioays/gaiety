@@ -5,9 +5,17 @@
     if (document.querySelector(`link[${marker}]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = `${path}?v=hero-cta-3`;
+    link.href = `${path}?v=corners-removed-1`;
     link.setAttribute(marker, "");
     document.head.appendChild(link);
+  }
+
+  function removeCornerDecorations() {
+    document
+      .querySelectorAll(
+        '.sales-corner-photo, .sales-page-corner-decor, img[src*="sales-corner-photo"], img[src*="sales-corner"]',
+      )
+      .forEach((element) => element.remove());
   }
 
   function installIngredientGrid() {
@@ -256,37 +264,10 @@
     faq.querySelector(".faq-heading .text-link")?.remove();
   }
 
-  function installCornerPhotos() {
-    document.querySelectorAll(".sales-corner-photo").forEach((element) => element.remove());
-
-    const source = `assets/sales-corner-photo.svg?v=${Date.now()}`;
-    const hero = document.querySelector(".hero");
-    const faq = document.querySelector("#duvidas");
-
-    function append(parent, position, loading) {
-      if (!parent) return;
-      const image = document.createElement("img");
-      image.className = `sales-corner-photo sales-corner-photo--${position}`;
-      image.src = source;
-      image.alt = "";
-      image.width = 520;
-      image.height = 650;
-      image.loading = loading;
-      image.decoding = "async";
-      image.setAttribute("aria-hidden", "true");
-      parent.appendChild(image);
-    }
-
-    append(hero, "top-left", "eager");
-    append(hero, "top-right", "eager");
-    append(faq, "bottom-left", "lazy");
-    append(faq, "bottom-right", "lazy");
-  }
-
   function initialize() {
+    removeCornerDecorations();
     loadStylesheet("ingredient-grid.css", "data-ingredient-grid-style");
     loadStylesheet("how-to.css", "data-how-to-style");
-    loadStylesheet("sales-corners.css", "data-sales-corners-style");
     loadStylesheet("testimonials.css", "data-testimonials-style");
     loadStylesheet("hero-cta.css", "data-hero-cta-style");
 
@@ -295,7 +276,7 @@
     installTestimonials();
     trimAfterHowTo();
     void hydrateTestimonialImages();
-    installCornerPhotos();
+    removeCornerDecorations();
   }
 
   if (document.readyState === "loading") {
