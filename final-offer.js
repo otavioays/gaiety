@@ -12,8 +12,9 @@
     1: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[1]}:1?checkout`,
     2: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[2]}:1?checkout`
   };
-  const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v2";
-  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v2";
+  const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v3";
+  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v3";
+  const OFFER_IMPRESSION_KEY = "gaiety_offer_impressions_v1";
 
   function loadStyle(){
     if(document.querySelector(`link[${STYLE_MARKER}]`)) return;
@@ -51,6 +52,25 @@
     if(!cookie) return undefined;
     try{return decodeURIComponent(cookie.slice(prefix.length));}
     catch(_error){return cookie.slice(prefix.length);}
+  }
+
+  function trackerEvent(name,properties,options){
+    const bridge=window.GaietyTracking;
+    if(bridge && typeof bridge.track==="function"){
+      return Promise.resolve(bridge.track(name,properties||{},options||{})).catch(()=>false);
+    }
+    if(window.ConversionTracker && typeof window.ConversionTracker.track==="function"){
+      return Promise.resolve(window.ConversionTracker.track(name,properties||{},options||{})).catch(()=>false);
+    }
+    return Promise.resolve(false);
+  }
+
+  function buildTrackedCheckoutUrl(baseUrl,properties){
+    const bridge=window.GaietyTracking;
+    if(bridge && typeof bridge.buildCheckoutUrl==="function"){
+      return bridge.buildCheckoutUrl(baseUrl,properties||{});
+    }
+    return baseUrl;
   }
 
   function ensureCorrectMetaPixel(){
@@ -115,13 +135,29 @@
     }).then(response=>response.ok).catch(()=>false);
   }
 
-  function trackMetaEvent(eventName,customData,options){
+  function trackMetaEvent(eventName,customData,options={}){
     const eventId=createEventId(eventName);
 
     if(ensureCorrectMetaPixel()){
       try{
         window.fbq("trackSingle",META_PIXEL_ID,eventName,customData,{eventID:eventId});
       }catch(_error){}
+    }
+
+    if(options.trackerEventName){
+      void trackerEvent(
+        options.trackerEventName,
+        {
+          ...customData,
+          ...(options.trackerProperties||{}),
+          meta_event_id:eventId,
+          meta_event_name:eventName,
+          meta_pixel_id:META_PIXEL_ID,
+          browser_event_requested:true,
+          server_event_requested:true
+        },
+        options.preferBeacon ? {beacon:true} : {}
+      );
     }
 
     void sendServerEvent(eventName,eventId,customData,options);
@@ -147,6 +183,15 @@
         content_type:"product",
         content_name:"Mushroom Complex",
         content_category:"Foco e bem-estar"
+      },{
+        trackerEventName:"product_view",
+        trackerProperties:{
+          product_id:PRODUCT_ID,
+          minimum_price:83,
+          maximum_price:150,
+          offer_count:2,
+          placement:"sales_page"
+        }
       });
     };
 
@@ -161,6 +206,52 @@
       send();
     },{threshold:[0.25]});
     observer.observe(section);
+  }
+
+  function readOfferImpressions(){
+    try{return JSON.parse(window.sessionStorage.getItem(OFFER_IMPRESSION_KEY)||"{}");}
+    catch(_error){return {};}
+  }
+
+  function writeOfferImpressions(value){
+    try{window.sessionStorage.setItem(OFFER_IMPRESSION_KEY,JSON.stringify(value));}
+    catch(_error){}
+  }
+
+  function installOfferImpressions(section){
+    const sent=readOfferImpressions();
+    const buttons=Array.from(section.querySelectorAll("[data-offer-button]"));
+
+    const send=(button)=>{
+      const units=Number(button.dataset.offerButton||0);
+      if(!units || sent[units]) return;
+      sent[units]=new Date().toISOString();
+      writeOfferImpressions(sent);
+      void trackerEvent("cta_impression",{
+        placement:"final_offer",
+        cta_goal:"checkout",
+        product_id:PRODUCT_ID,
+        variant_id:VARIANT_IDS[units],
+        offer_units:units,
+        offer_price:units===2 ? 150 : 83,
+        element_text:"Comprar agora"
+      });
+    };
+
+    if(!("IntersectionObserver" in window)){
+      buttons.forEach(send);
+      return;
+    }
+
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting||entry.intersectionRatio<0.5) return;
+        send(entry.target);
+        observer.unobserve(entry.target);
+      });
+    },{threshold:[0.5]});
+
+    buttons.forEach(button=>observer.observe(button));
   }
 
   function productVisual(twoUnits){
@@ -208,6 +299,7 @@
     section.className="final-offer";
     section.id="lista";
     section.dataset.section="final-offer";
+    section.dataset.trackSection="final_offer";
     section.setAttribute("aria-labelledby","final-offer-title");
     section.innerHTML=`
       <div class="container final-offer__inner">
@@ -230,33 +322,50 @@
     testimonials.insertAdjacentElement("afterend",section);
     section.insertAdjacentElement("afterend",faq);
     installViewContentTracking(section);
+    installOfferImpressions(section);
 
     section.querySelectorAll("[data-offer-button]").forEach(button=>{
       button.addEventListener("click",()=>{
         const units=Number(button.dataset.offerButton||0);
         const price=units===2 ? 150 : 83;
-        const checkoutUrl=button.dataset.checkoutUrl;
+        const variantId=VARIANT_IDS[units];
+        const baseCheckoutUrl=button.dataset.checkoutUrl;
+        const checkoutId=createEventId("checkout");
+        const checkoutProperties={
+          product_id:PRODUCT_ID,
+          variant_id:variantId,
+          offer_units:units,
+          quantity:units,
+          value:price,
+          cart_value:price,
+          currency:"BRL",
+          placement:"final_offer",
+          checkout_provider:"shopify",
+          checkout_id:checkoutId,
+          ct_checkout_id:checkoutId,
+          destination_host:"gaiety-6507.myshopify.com"
+        };
 
-        if(window.ConversionTracker?.track){
-          Promise.resolve(window.ConversionTracker.track("offer_click",{
-            offer_units:units,
-            offer_price:price,
-            placement:"final_offer",
-            checkout_provider:"shopify"
-          })).catch(()=>null);
-        }
+        void trackerEvent("buy_button_click",checkoutProperties,{beacon:true});
 
         trackMetaEvent("InitiateCheckout",{
           currency:"BRL",
           value:price,
-          content_ids:[VARIANT_IDS[units]],
+          content_ids:[variantId],
           content_type:"product",
           content_name:`Mushroom Complex - ${units} ${units===1 ? "unidade" : "unidades"}`,
           content_category:"Foco e bem-estar",
           num_items:units
-        },{preferBeacon:true});
+        },{
+          preferBeacon:true,
+          trackerEventName:"checkout_started",
+          trackerProperties:checkoutProperties
+        });
 
-        if(checkoutUrl) window.location.assign(checkoutUrl);
+        const checkoutUrl=buildTrackedCheckoutUrl(baseCheckoutUrl,checkoutProperties);
+        if(checkoutUrl){
+          window.setTimeout(()=>window.location.assign(checkoutUrl),80);
+        }
       });
     });
 
