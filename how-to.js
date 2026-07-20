@@ -5,7 +5,7 @@
     if (document.querySelector(`link[${marker}]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = `${path}?v=${Date.now()}`;
+    link.href = `${path}?v=exact-testimonials-1`;
     link.setAttribute(marker, "");
     document.head.appendChild(link);
   }
@@ -104,32 +104,64 @@
     else document.querySelector("main")?.appendChild(section);
   }
 
+  function testimonialFigure({ parts, width, height, alt, featured = false }) {
+    return `
+      <figure class="customer-voice-shot${featured ? " customer-voice-shot--featured" : ""}">
+        <img
+          data-testimonial-parts="${parts.join(",")}"
+          width="${width}"
+          height="${height}"
+          loading="lazy"
+          decoding="async"
+          alt="${alt}">
+      </figure>
+    `;
+  }
+
   function installTestimonials() {
     const faq = document.querySelector("#duvidas");
     if (!faq) return;
 
     document.querySelector("#depoimentos")?.remove();
 
-    const images = [
+    const testimonials = [
       {
-        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-1.png?v=1784546801",
+        parts: [
+          "assets/testimonials/bruna-1.part",
+          "assets/testimonials/bruna-2.part",
+          "assets/testimonials/bruna-3.part",
+        ],
         width: 517,
         height: 320,
+        alt: "Depoimento de Bruna Rocha e conversa com Camila Souza",
+        featured: true,
       },
       {
-        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-2.png?v=1784546812",
+        parts: [
+          "assets/testimonials/renata-1.part",
+          "assets/testimonials/renata-2.part",
+        ],
         width: 517,
-        height: 151,
+        height: 208,
+        alt: "Depoimento de Renata Martins",
       },
       {
-        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-3.png?v=1784546821",
-        width: 516,
-        height: 135,
+        parts: [
+          "assets/testimonials/patricia-1.part",
+          "assets/testimonials/patricia-2.part",
+        ],
+        width: 484,
+        height: 179,
+        alt: "Depoimento de Patrícia Nunes",
       },
       {
-        src: "https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-depoimento-4.png?v=1784546832",
-        width: 510,
-        height: 139,
+        parts: [
+          "assets/testimonials/juliana-1.part",
+          "assets/testimonials/juliana-2.part",
+        ],
+        width: 509,
+        height: 183,
+        alt: "Depoimento de Juliana Freitas",
       },
     ];
 
@@ -144,23 +176,53 @@
           <h2 id="depoimentos-titulo">é isso que as pessoas estão dizendo:</h2>
         </header>
         <div class="customer-voices__images">
-          ${images.map((image, index) => `
-            <figure class="customer-voices__image-card">
-              <img
-                src="${image.src}"
-                width="${image.width}"
-                height="${image.height}"
-                loading="${index === 0 ? "eager" : "lazy"}"
-                decoding="async"
-                alt="Captura de tela de depoimento de cliente"
-              >
-            </figure>
-          `).join("")}
+          ${testimonials.map(testimonialFigure).join("")}
         </div>
       </div>
     `;
 
     faq.insertAdjacentElement("beforebegin", section);
+  }
+
+  async function hydrateTestimonialImage(image) {
+    const paths = (image.dataset.testimonialParts || "")
+      .split(",")
+      .map((path) => path.trim())
+      .filter(Boolean);
+
+    if (!paths.length) return;
+
+    const buffers = await Promise.all(
+      paths.map(async (path) => {
+        const response = await fetch(`${path}?v=exact-testimonials-1`, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`testimonial_asset_failed:${path}`);
+        return response.arrayBuffer();
+      }),
+    );
+
+    const objectUrl = URL.createObjectURL(new Blob(buffers, { type: "image/webp" }));
+    image.addEventListener(
+      "load",
+      () => {
+        image.closest(".customer-voice-shot")?.classList.add("is-loaded");
+        URL.revokeObjectURL(objectUrl);
+      },
+      { once: true },
+    );
+    image.src = objectUrl;
+  }
+
+  async function hydrateTestimonialImages() {
+    const images = Array.from(document.querySelectorAll("[data-testimonial-parts]"));
+    await Promise.all(
+      images.map(async (image) => {
+        try {
+          await hydrateTestimonialImage(image);
+        } catch (_error) {
+          image.closest(".customer-voice-shot")?.classList.add("is-error");
+        }
+      }),
+    );
   }
 
   function trimAfterHowTo() {
@@ -172,20 +234,31 @@
 
     Array.from(main.children).forEach((element) => {
       const keep = element === howTo || element === testimonials || element === faq;
-      const beforeHowTo = element.compareDocumentPosition(howTo) & Node.DOCUMENT_POSITION_FOLLOWING;
+      const beforeHowTo = Boolean(
+        element.compareDocumentPosition(howTo) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
       if (!beforeHowTo && !keep) element.remove();
     });
 
     howTo.insertAdjacentElement("afterend", testimonials);
     testimonials.insertAdjacentElement("afterend", faq);
 
-    document.querySelectorAll("[data-mobile-dock], [data-desktop-dock]").forEach((element) => element.remove());
-    document.querySelectorAll('a[href="#problema"], a[href="#mecanismo"], a[href="#produto"], a[href="#provas"], a[href="#lista"], a[href="#qualificacao"]').forEach((element) => element.remove());
+    document
+      .querySelectorAll("[data-mobile-dock], [data-desktop-dock]")
+      .forEach((element) => element.remove());
+
+    document
+      .querySelectorAll(
+        'a[href="#problema"], a[href="#mecanismo"], a[href="#produto"], a[href="#provas"], a[href="#lista"], a[href="#qualificacao"]',
+      )
+      .forEach((element) => element.remove());
+
     faq.querySelector(".faq-heading .text-link")?.remove();
   }
 
   function installCornerPhotos() {
     document.querySelectorAll(".sales-corner-photo").forEach((element) => element.remove());
+
     const source = `assets/sales-corner-photo.svg?v=${Date.now()}`;
     const hero = document.querySelector(".hero");
     const faq = document.querySelector("#duvidas");
@@ -220,6 +293,7 @@
     installHowTo();
     installTestimonials();
     trimAfterHowTo();
+    void hydrateTestimonialImages();
     installCornerPhotos();
   }
 
