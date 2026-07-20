@@ -1,90 +1,9 @@
-body {
-  overflow-x: hidden;
-}
-
 body::before,
 body::after,
 .site-footer::before,
-.site-footer::after {
+.site-footer::after,
+.sales-corner-photo {
   display: none !important;
   content: none !important;
   background: none !important;
-}
-
-.hero,
-#duvidas {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.hero > .container,
-#duvidas > .container {
-  position: relative;
-  z-index: 2;
-}
-
-.sales-corner-photo {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  width: clamp(230px, 22vw, 360px);
-  height: auto;
-  max-width: none;
-  pointer-events: none;
-  user-select: none;
-  opacity: 1;
-  object-fit: cover;
-  border: 0;
-  border-radius: 22px;
-  box-shadow: 0 18px 44px rgba(36, 5, 46, 0.2);
-  filter: none !important;
-  -webkit-filter: none !important;
-}
-
-.sales-corner-photo--top-left {
-  top: 86px;
-  left: -110px;
-  transform: rotate(-7deg);
-}
-
-.sales-corner-photo--top-right {
-  top: 86px;
-  right: -110px;
-  transform: rotate(7deg);
-}
-
-.sales-corner-photo--bottom-left {
-  bottom: -115px;
-  left: -110px;
-  transform: rotate(7deg);
-}
-
-.sales-corner-photo--bottom-right {
-  right: -110px;
-  bottom: -115px;
-  transform: rotate(-7deg);
-}
-
-@media (max-width: 900px) {
-  .sales-corner-photo {
-    width: clamp(180px, 48vw, 230px);
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(36, 5, 46, 0.16);
-  }
-
-  .sales-corner-photo--top-right,
-  .sales-corner-photo--bottom-left {
-    display: none;
-  }
-
-  .sales-corner-photo--top-left {
-    top: 96px;
-    left: -92px;
-  }
-
-  .sales-corner-photo--bottom-right {
-    right: -92px;
-    bottom: -84px;
-  }
 }
