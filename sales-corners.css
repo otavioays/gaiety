@@ -2,7 +2,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Disable every previous pseudo-element implementation. */
 body::before,
 body::after,
 .site-footer::before,
@@ -29,7 +28,7 @@ body::after,
   position: absolute;
   z-index: 1;
   display: block;
-  width: clamp(210px, 20vw, 330px);
+  width: clamp(230px, 22vw, 360px);
   height: auto;
   max-width: none;
   pointer-events: none;
@@ -37,40 +36,40 @@ body::after,
   opacity: 1;
   object-fit: cover;
   border: 0;
-  border-radius: 24px;
+  border-radius: 22px;
   box-shadow: 0 18px 44px rgba(36, 5, 46, 0.2);
-  filter: none;
-  -webkit-filter: none;
+  filter: none !important;
+  -webkit-filter: none !important;
 }
 
 .sales-corner-photo--top-left {
-  top: 54px;
-  left: -176px;
-  transform: rotate(-8deg);
+  top: 86px;
+  left: -110px;
+  transform: rotate(-7deg);
 }
 
 .sales-corner-photo--top-right {
-  top: 54px;
-  right: -176px;
-  transform: rotate(8deg);
+  top: 86px;
+  right: -110px;
+  transform: rotate(7deg);
 }
 
 .sales-corner-photo--bottom-left {
-  bottom: -180px;
-  left: -176px;
-  transform: rotate(8deg);
+  bottom: -115px;
+  left: -110px;
+  transform: rotate(7deg);
 }
 
 .sales-corner-photo--bottom-right {
-  right: -176px;
-  bottom: -180px;
-  transform: rotate(-8deg);
+  right: -110px;
+  bottom: -115px;
+  transform: rotate(-7deg);
 }
 
 @media (max-width: 900px) {
   .sales-corner-photo {
-    width: clamp(150px, 42vw, 210px);
-    border-radius: 18px;
+    width: clamp(180px, 48vw, 230px);
+    border-radius: 16px;
     box-shadow: 0 12px 30px rgba(36, 5, 46, 0.16);
   }
 
@@ -80,12 +79,12 @@ body::after,
   }
 
   .sales-corner-photo--top-left {
-    top: 74px;
-    left: -116px;
+    top: 96px;
+    left: -92px;
   }
 
   .sales-corner-photo--bottom-right {
-    right: -116px;
-    bottom: -116px;
+    right: -92px;
+    bottom: -84px;
   }
 }
