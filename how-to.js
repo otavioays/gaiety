@@ -5,7 +5,7 @@
     if (document.querySelector(`link[${marker}]`)) return;
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = `${path}?v=hero-cta-2`;
+    link.href = `${path}?v=hero-cta-3`;
     link.setAttribute(marker, "");
     document.head.appendChild(link);
   }
@@ -249,7 +249,7 @@
 
     document
       .querySelectorAll(
-        'a[href="#problema"], a[href="#mecanismo"], a[href="#produto"], a[href="#provas"], a[href="#lista"], a[href="#qualificacao"]',
+        'a[href="#problema"], a[href="#mecanismo"], a[href="#produto"], a[href="#provas"], a[href="#qualificacao"]',
       )
       .forEach((element) => element.remove());
 
