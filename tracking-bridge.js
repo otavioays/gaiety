@@ -24,20 +24,10 @@
     ? "https://analise-de-dados-fbads-git-agent-iter-2df228-otavioays-projects.vercel.app/tracker.js"
     : "https://analise-de-dados-fbads.vercel.app/tracker.js";
 
-  const OFFER = Object.freeze({
-    product_id: "15917657129329",
-    product_name: "Mushroom Complex",
-    product_category: "Foco e bem-estar",
-    offer_stage: "direct_sale",
-    page_version: "gaiety-mushroom-complex-v1",
-    currency: "BRL",
-    entry_price: 83,
-    meta_pixel_id: "1725992278652713",
-    storefront: "gaiety.cloud",
-    checkout_provider: "shopify",
-  });
-
   const IMPRESSION_KEY = "gaiety_offer_cta_impressions_v2";
+  const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v1";
+  const FUNNEL_TOUCH_KEY = "gaiety_funnel_touch_v1";
+  const FUNNEL_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
   const STORAGE_PREFIX = "fbads_conversion_tracker";
 
   function safeJson(value) {
@@ -56,6 +46,104 @@
       return null;
     }
   }
+
+  function readSessionStorage(key) {
+    try {
+      return window.sessionStorage.getItem(key);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function writeSessionStorage(key, value) {
+    try {
+      window.sessionStorage.setItem(key, value);
+    } catch (_error) {}
+  }
+
+  function validFunnelTouch() {
+    const touch = safeJson(readStorage(FUNNEL_TOUCH_KEY));
+    if (!touch || !touch.seen_at) return null;
+    const seenAt = Date.parse(touch.seen_at);
+    if (!Number.isFinite(seenAt) || Date.now() - seenAt > FUNNEL_WINDOW_MS) return null;
+    return touch;
+  }
+
+  function referrerIsEditorial() {
+    if (!document.referrer) return false;
+    try {
+      const referrer = new URL(document.referrer);
+      const sameSite = referrer.hostname === "gaiety.cloud" || referrer.hostname === "www.gaiety.cloud";
+      return sameSite && referrer.pathname.startsWith("/editorial/");
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function resolveJourney() {
+    const explicitFunnel =
+      params.get("ct_entry") === "funnel" ||
+      params.get("ct_funnel") === "editorial" ||
+      params.get("ct_page_type") === "funnel";
+    const editorialReferrer = referrerIsEditorial();
+    const priorTouch = validFunnelTouch();
+
+    if (explicitFunnel) {
+      return {
+        journey_type: "funnel_to_sales",
+        previous_page_type: "funnel",
+        entry_source: "editorial_cta",
+        funnel_touch_at: priorTouch?.seen_at || null,
+      };
+    }
+
+    if (editorialReferrer) {
+      return {
+        journey_type: "funnel_to_sales",
+        previous_page_type: "funnel",
+        entry_source: "editorial_referrer",
+        funnel_touch_at: priorTouch?.seen_at || null,
+      };
+    }
+
+    if (priorTouch) {
+      return {
+        journey_type: "funnel_assisted_sales",
+        previous_page_type: "prior_funnel",
+        entry_source: "prior_funnel_touch",
+        funnel_touch_at: priorTouch.seen_at,
+      };
+    }
+
+    return {
+      journey_type: "direct_to_sales",
+      previous_page_type: "external_or_direct",
+      entry_source: "direct_or_external",
+      funnel_touch_at: null,
+    };
+  }
+
+  const PAGE_CONTEXT = Object.freeze({
+    page_type: "sales_page",
+    funnel_stage: "sales_page",
+    page_name: "gaiety_sales_page",
+    funnel_id: "gaiety_modo_claro",
+    ...resolveJourney(),
+  });
+
+  const OFFER = Object.freeze({
+    product_id: "15917657129329",
+    product_name: "Mushroom Complex",
+    product_category: "Foco e bem-estar",
+    offer_stage: "direct_sale",
+    page_version: "gaiety-mushroom-complex-v1",
+    currency: "BRL",
+    entry_price: 83,
+    meta_pixel_id: "1725992278652713",
+    storefront: "gaiety.cloud",
+    checkout_provider: "shopify",
+    ...PAGE_CONTEXT,
+  });
 
   function currentAttribution() {
     const current = new URLSearchParams(window.location.search);
@@ -137,6 +225,11 @@
         script.dataset.sessionTimeoutMinutes = "30";
         script.dataset.autoPageView = "true";
         script.dataset.autoBehavior = "true";
+        script.dataset.pageType = PAGE_CONTEXT.page_type;
+        script.dataset.funnelStage = PAGE_CONTEXT.funnel_stage;
+        script.dataset.pageName = PAGE_CONTEXT.page_name;
+        script.dataset.funnelId = PAGE_CONTEXT.funnel_id;
+        script.dataset.journeyType = PAGE_CONTEXT.journey_type;
         script.addEventListener("load", finishWhenReady, { once: true });
         script.addEventListener("error", () => resolve(null), { once: true });
         document.head.appendChild(script);
@@ -154,7 +247,7 @@
         if (!tracker) return false;
         return tracker.track(
           name,
-          Object.assign({}, OFFER, trackerContext(tracker), properties || {}),
+          Object.assign({}, OFFER, PAGE_CONTEXT, trackerContext(tracker), properties || {}),
           options || {},
         );
       })
@@ -165,6 +258,7 @@
     return Object.assign(
       {},
       OFFER,
+      PAGE_CONTEXT,
       trackerContext(window.ConversionTracker),
       {
         ct_origin: "gaiety",
@@ -182,6 +276,10 @@
         "ct_visitor_id",
         "ct_session_id",
         "ct_checkout_id",
+        "ct_page_type",
+        "ct_journey_type",
+        "ct_funnel_id",
+        "ct_entry_source",
         "utm_source",
         "utm_medium",
         "utm_campaign",
@@ -190,8 +288,16 @@
         "fbclid",
       ];
 
+      const directValues = {
+        ...context,
+        ct_page_type: context.page_type,
+        ct_journey_type: context.journey_type,
+        ct_funnel_id: context.funnel_id,
+        ct_entry_source: context.entry_source,
+      };
+
       directKeys.forEach((key) => {
-        const value = context[key];
+        const value = directValues[key];
         if (value !== null && value !== undefined && value !== "") {
           url.searchParams.set(key, String(value));
         }
@@ -203,6 +309,13 @@
         ct_page_instance_id: context.ct_page_instance_id,
         ct_checkout_id: context.ct_checkout_id || context.checkout_id,
         ct_origin: context.ct_origin,
+        ct_page_type: context.page_type,
+        ct_funnel_stage: context.funnel_stage,
+        ct_page_name: context.page_name,
+        ct_funnel_id: context.funnel_id,
+        ct_journey_type: context.journey_type,
+        ct_previous_page_type: context.previous_page_type,
+        ct_entry_source: context.entry_source,
         ct_product_id: context.product_id,
         ct_variant_id: context.variant_id,
         ct_offer_units: context.offer_units,
@@ -300,19 +413,34 @@
     ctas.forEach((cta) => observer.observe(cta));
   }
 
+  function sendClassifiedPageView() {
+    if (readSessionStorage(CLASSIFIED_VIEW_KEY) === "1") return;
+    writeSessionStorage(CLASSIFIED_VIEW_KEY, "1");
+    void track("sales_page_view", {
+      landing_classification: PAGE_CONTEXT.journey_type,
+      referrer_url: document.referrer || null,
+    });
+  }
+
   window.GaietyTracking = Object.freeze({
     track,
     ready: loadTracker,
     offer: OFFER,
+    page: PAGE_CONTEXT,
     context: checkoutContext,
     buildCheckoutUrl,
   });
 
   loadTracker();
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installCtaTracking, { once: true });
-  } else {
+  const initialize = () => {
     installCtaTracking();
+    sendClassifiedPageView();
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
   }
 })();
