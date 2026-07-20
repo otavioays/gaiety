@@ -33,11 +33,11 @@
       </details>
       <details>
         <summary>Então o resultado vem do patch ou do Ritual Nítido?<span>+</span></summary>
-        <p>O Ritual Nítido foi desenhado para funcionar como um sistema completo, não como um “adesivo mágico”. O patch é a âncora física e vestível; escolher uma tarefa e começar imediatamente são partes essenciais do protocolo.</p>
+        <p>A fórmula do patch foi desenvolvida para ajudar no foco e na clareza mental, reunindo sete cogumelos funcionais já pesquisados por seu potencial de apoiar atenção, cognição, energia e constância. O Ritual Nítido complementa essa proposta ao transformar a aplicação em um sinal claro para escolher uma tarefa e começar.</p>
       </details>
       <details>
         <summary>O que eu devo esperar sentir e em quanto tempo?<span>+</span></summary>
-        <p>Não espere uma virada dramática, euforia ou uma sensação de “modo ilimitado”. Os relatos costumam falar em uma percepção mais sutil de clareza, constância ou facilidade para permanecer no bloco, mas os resultados variam e algumas pessoas podem não perceber diferença.</p>
+        <p>É esperado perceber mais clareza mental, maior facilidade para organizar os pensamentos, começar a tarefa e permanecer no bloco com mais constância. A experiência tende a surgir como uma sensação gradual de mente mais alinhada e energia mais estável para trabalhar, estudar ou criar. O tempo e a intensidade podem variar de pessoa para pessoa.</p>
       </details>
       <details>
         <summary>Por que usar um patch em vez de café, cápsulas ou outro aplicativo?<span>+</span></summary>
