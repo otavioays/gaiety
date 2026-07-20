@@ -21,6 +21,7 @@ jobs:
       - name: Replace old Meta Pixel ID
         shell: bash
         run: |
+          # Keep browser Pixel and server-side CAPI on the same dataset.
           OLD_ID="1002939839166097"
           NEW_ID="1725992278652713"
           grep -rl --exclude-dir=.git "$OLD_ID" . | xargs -r sed -i "s/$OLD_ID/$NEW_ID/g"
