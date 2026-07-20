@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Teste Meta CAPI | Gaiety</title>
+  <style>
+    :root{font-family:Arial,sans-serif;color:#2b0735;background:#fdecf2}
+    *{box-sizing:border-box}
+    body{margin:0;padding:32px}
+    main{width:min(760px,100%);margin:0 auto;background:#fff;padding:28px;border:1px solid rgba(54,0,68,.15);border-radius:18px;box-shadow:0 18px 50px rgba(54,0,68,.12)}
+    h1{margin:0 0 10px;font-size:2rem}
+    p{line-height:1.55}
+    .status{padding:16px;margin:20px 0;background:#fff7fa;border:1px solid #efb7ce;border-radius:12px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}
+    button{border:0;border-radius:10px;padding:14px 18px;background:#00b72f;color:#fff;font-weight:800;cursor:pointer}
+    button.secondary{background:#360044}
+    pre{min-height:190px;margin:18px 0 0;padding:16px;overflow:auto;background:#17001e;color:#f8eefe;border-radius:12px;white-space:pre-wrap;word-break:break-word}
+    code{background:#ffe4ef;padding:2px 5px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Diagnóstico Meta CAPI</h1>
+    <p>Esta página não mostra o token. Ela apenas confirma se as variáveis existem e exibe a resposta segura da Meta.</p>
+
+    <div class="status" id="health">Carregando configuração...</div>
+
+    <div class="actions">
+      <button type="button" data-event="ViewContent">Enviar ViewContent</button>
+      <button type="button" data-event="InitiateCheckout">Enviar InitiateCheckout</button>
+      <button class="secondary" type="button" id="reload">Recarregar configuração</button>
+    </div>
+
+    <p>Mantenha a tela <strong>Testar eventos</strong> da Meta aberta. Depois clique em um dos botões e aguarde alguns segundos.</p>
+    <pre id="output">Nenhum evento enviado ainda.</pre>
+  </main>
+
+  <script>
+    const health=document.querySelector("#health");
+    const output=document.querySelector("#output");
+
+    async function loadHealth(){
+      health.textContent="Carregando configuração...";
+      try{
+        const response=await fetch("/api/meta-capi",{cache:"no-store"});
+        const data=await response.json();
+        health.innerHTML=[
+          `<strong>Endpoint:</strong> ${data.ok ? "online" : "erro"}`,
+          `<br><strong>Token configurado:</strong> ${data.access_token_configured ? "SIM" : "NÃO"}`,
+          `<br><strong>Código de teste configurado:</strong> ${data.test_event_code_configured ? "SIM" : "NÃO"}`,
+          `<br><strong>Pixel:</strong> ${data.pixel_id || "desconhecido"}`,
+          `<br><strong>Graph API:</strong> ${data.graph_version || "desconhecida"}`
+        ].join("");
+      }catch(error){
+        health.textContent=`Falha ao consultar o endpoint: ${error.message}`;
+      }
+    }
+
+    async function sendEvent(eventName){
+      output.textContent=`Enviando ${eventName}...`;
+      const eventId=`manual-${eventName.toLowerCase()}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const isCheckout=eventName==="InitiateCheckout";
+      const payload={
+        event_name:eventName,
+        event_id:eventId,
+        event_source_url:location.origin+"/meta-test.html",
+        currency:"BRL",
+        value:isCheckout ? 83 : 83,
+        content_ids:[isCheckout ? "64223935332721" : "15917657129329"],
+        content_type:"product",
+        content_name:isCheckout ? "Mushroom Complex - 1 unidade" : "Mushroom Complex",
+        content_category:"Foco e bem-estar",
+        num_items:isCheckout ? 1 : undefined
+      };
+
+      try{
+        const response=await fetch("/api/meta-capi",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(payload)
+        });
+        const data=await response.json().catch(()=>({}));
+        output.textContent=JSON.stringify({http_status:response.status,...data},null,2);
+      }catch(error){
+        output.textContent=JSON.stringify({ok:false,error:error.message},null,2);
+      }
+    }
+
+    document.querySelectorAll("[data-event]").forEach(button=>{
+      button.addEventListener("click",()=>sendEvent(button.dataset.event));
+    });
+    document.querySelector("#reload").addEventListener("click",loadHealth);
+    loadHealth();
+  </script>
+</body>
+</html>
