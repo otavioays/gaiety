@@ -181,6 +181,7 @@
       const directKeys = [
         "ct_visitor_id",
         "ct_session_id",
+        "ct_checkout_id",
         "utm_source",
         "utm_medium",
         "utm_campaign",
@@ -200,6 +201,7 @@
         ct_visitor_id: context.ct_visitor_id,
         ct_session_id: context.ct_session_id,
         ct_page_instance_id: context.ct_page_instance_id,
+        ct_checkout_id: context.ct_checkout_id || context.checkout_id,
         ct_origin: context.ct_origin,
         ct_product_id: context.product_id,
         ct_variant_id: context.variant_id,
