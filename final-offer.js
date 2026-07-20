@@ -12,6 +12,15 @@
     document.head.appendChild(link);
   }
 
+  function loadFaqModule(){
+    if(document.querySelector("script[data-objection-faq-module]")) return;
+    const script=document.createElement("script");
+    script.src=`faq-objections.js?v=objections-1-${Date.now()}`;
+    script.async=false;
+    script.dataset.objectionFaqModule="";
+    document.head.appendChild(script);
+  }
+
   function productVisual(twoUnits){
     return `
       <div class="offer-card__visual" aria-hidden="true">
@@ -97,6 +106,7 @@
 
   function initialize(){
     loadStyle();
+    loadFaqModule();
     if(mount()) return;
     const observer=new MutationObserver(()=>{
       if(mount()) observer.disconnect();
