@@ -1,0 +1,105 @@
+(function installObjectionFaq(){
+  "use strict";
+
+  function trackFaq(question){
+    const tracker=window.ConversionTracker;
+    if(!tracker||typeof tracker.track!=="function") return;
+    try{
+      Promise.resolve(tracker.track("faq_open",{
+        question,
+        placement:"objection_faq",
+        page_version:"ritual-nitido-sales-v2"
+      })).catch(()=>null);
+    }catch(_error){}
+  }
+
+  function rewrite(){
+    const faq=document.querySelector("#duvidas");
+    const heading=faq?.querySelector(".faq-heading");
+    const list=faq?.querySelector(".faq-list");
+    if(!faq||!heading||!list) return false;
+    if(faq.dataset.objectionFaqInstalled==="true") return true;
+
+    heading.innerHTML=`
+      <span class="eyebrow">Antes de escolher seu kit</span>
+      <h2>As dúvidas que realmente podem impedir você de comprar.</h2>
+      <p>Sem prometer superpoderes, sem esconder limitações e sem transformar um patch em tratamento médico.</p>
+    `;
+
+    list.innerHTML=`
+      <details>
+        <summary>Isso vai me deixar focado automaticamente?<span>+</span></summary>
+        <p>Não. Modo Claro não faz a tarefa por você e não promete foco garantido. A proposta é reduzir a fricção do começo: você aplica o patch, escolhe uma única tarefa e começa o bloco antes de voltar a negociar consigo mesmo. O valor está em tornar essa transição mais visível e repetível.</p>
+      </details>
+      <details>
+        <summary>Então o resultado vem do patch ou do Ritual Nítido?<span>+</span></summary>
+        <p>O Ritual Nítido foi desenhado para funcionar como um sistema completo, não como um “adesivo mágico”. O patch é a âncora física e vestível; escolher uma tarefa e começar imediatamente são partes essenciais do protocolo. A contribuição biológica do produto exato não deve ser tratada como comprovada sem documentação específica da fórmula final.</p>
+      </details>
+      <details>
+        <summary>O que eu devo esperar sentir e em quanto tempo?<span>+</span></summary>
+        <p>Não espere uma virada dramática, euforia ou uma sensação de “modo ilimitado”. Em produtos desta categoria, os relatos costumam falar em uma percepção mais sutil de clareza, constância ou facilidade para permanecer no bloco, mas os resultados variam e algumas pessoas podem não perceber diferença. Não prometemos efeito imediato nem uma duração fixa.</p>
+      </details>
+      <details>
+        <summary>Por que usar um patch em vez de café, cápsulas ou outro aplicativo?<span>+</span></summary>
+        <p>Porque o formato elimina parte da fricção: não há bebida para preparar, pó para misturar, cápsula para engolir nem outro aplicativo para abrir. Depois de aplicado, o patch permanece como um sinal visível de que você escolheu uma tarefa. Ele não precisa substituir café, sono ou ferramentas de produtividade; ocupa um papel diferente dentro da rotina.</p>
+      </details>
+      <details>
+        <summary>Como eu uso o Ritual Nítido na prática?<span>+</span></summary>
+        <p>Aplique um patch sobre a pele limpa, seca, sem irritação e, de preferência, com poucos pelos. Depois escolha uma tarefa específica, elimine as distrações mais óbvias e comece imediatamente. A regra é simples: 1 patch, 1 tarefa, 1 bloco claro. Siga também todas as instruções presentes na embalagem do lote recebido.</p>
+      </details>
+      <details>
+        <summary>O patch fica preso? Posso suar, treinar ou tomar banho?<span>+</span></summary>
+        <p>A aderência melhora quando a pele está completamente limpa e seca e quando toda a superfície é pressionada após a aplicação. Água, suor intenso, oleosidade e atrito podem reduzir a fixação. Como aderência é uma das objeções mais comuns da categoria, não prometemos que ele permanecerá igual em todas as peles e atividades.</p>
+      </details>
+      <details>
+        <summary>E se eu tiver pele sensível?<span>+</span></summary>
+        <p>Não aplique sobre pele irritada, ferida ou sensibilizada. Suspenda o uso se aparecer vermelhidão, coceira, ardor ou desconforto. Pessoas com histórico de reação a adesivos ou alergia a cogumelos devem conversar com um profissional de saúde antes de usar. O produto não é “seguro para todo mundo” por definição.</p>
+      </details>
+      <details>
+        <summary>Posso usar junto com café, suplementos ou medicamentos?<span>+</span></summary>
+        <p>Não podemos garantir combinações individualmente. Quem usa medicamentos, outros suplementos, está grávida, amamentando ou possui alguma condição de saúde deve consultar um profissional antes do uso. Modo Claro não foi criado para substituir medicamento, sono, alimentação ou acompanhamento profissional.</p>
+      </details>
+      <details>
+        <summary>Isso trata TDAH, ansiedade, depressão ou esgotamento?<span>+</span></summary>
+        <p>Não. Modo Claro é apresentado como um ritual vestível de bem-estar para blocos de trabalho, estudo ou criação. Não diagnostica, trata, cura ou previne doenças e não deve ser usado como alternativa a tratamento médico ou psicológico.</p>
+      </details>
+      <details>
+        <summary>São 11 cogumelos? O que significam os 5000 mcg?<span>+</span></summary>
+        <p>A embalagem exibida informa “11 Mushroom Blend”, “5000 mcg” e 8 patches. A página destaca seis cogumelos para explicar papéis dentro da proposta do blend, mas isso não substitui a fórmula completa. Até que a documentação final detalhe quanto existe por patch e quanto corresponde a cada ingrediente, o número de 5000 mcg não deve ser interpretado como dose comprovadamente efetiva.</p>
+      </details>
+      <details>
+        <summary>Por que vêm 8 patches? Qual kit tem o melhor custo por uso?<span>+</span></summary>
+        <p>O pacote com 8 patches funciona como uma entrada de menor compromisso para experimentar o ritual em oito blocos importantes. Uma unidade custa R$83, cerca de R$10,38 por patch. O kit com duas unidades custa R$150 por 16 patches, cerca de R$9,38 por patch, além de economizar R$16 em comparação com duas unidades compradas separadamente.</p>
+      </details>
+      <details>
+        <summary>E se eu usar e não perceber diferença?<span>+</span></summary>
+        <p>Essa possibilidade existe. Para avaliar de forma mais justa, use o patch em contextos semelhantes, escolha uma tarefa concreta e observe se houve mudança na facilidade de começar, permanecer e concluir o bloco. Não compre esperando uma transformação garantida. Antes de pagar, confira as condições de garantia, devolução, entrega e suporte apresentadas no checkout.</p>
+      </details>
+    `;
+
+    const details=Array.from(list.querySelectorAll("details"));
+    details.forEach(item=>{
+      item.addEventListener("toggle",()=>{
+        if(!item.open) return;
+        details.forEach(other=>{if(other!==item) other.open=false;});
+        const question=(item.querySelector("summary")?.textContent||"").replace("+","").trim();
+        trackFaq(question.slice(0,160));
+      });
+    });
+
+    faq.dataset.objectionFaqInstalled="true";
+    return true;
+  }
+
+  function initialize(){
+    if(rewrite()) return;
+    const observer=new MutationObserver(()=>{
+      if(rewrite()) observer.disconnect();
+    });
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    window.setTimeout(()=>observer.disconnect(),12000);
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initialize,{once:true});
+  else initialize();
+})();
