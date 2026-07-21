@@ -4,6 +4,24 @@
   const LOGO_URL="https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-logo-original.png?v=1784562981";
   const SALE_END_AT=new Date("2026-07-22T23:59:59-03:00").getTime();
 
+  function loadSalesPageRefresh(){
+    if(!document.querySelector("link[data-sales-page-refresh]")){
+      const link=document.createElement("link");
+      link.rel="stylesheet";
+      link.href=`sales-page-refresh.css?v=2-${Date.now()}`;
+      link.dataset.salesPageRefresh="";
+      document.head.appendChild(link);
+    }
+
+    if(!document.querySelector("script[data-sales-page-refresh]")){
+      const script=document.createElement("script");
+      script.src=`sales-page-refresh.js?v=2-${Date.now()}`;
+      script.async=false;
+      script.dataset.salesPageRefresh="";
+      document.head.appendChild(script);
+    }
+  }
+
   function installStyles(){
     if(document.querySelector("style[data-brand-experience-style]")) return;
 
@@ -118,6 +136,7 @@
   }
 
   function initialize(){
+    loadSalesPageRefresh();
     installStyles();
     const mounted=()=>mountLogo()&&mountAnnouncement();
     if(mounted()) return;
