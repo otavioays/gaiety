@@ -36,6 +36,14 @@
       script.dataset.scratchImageSwapModule="";
       document.head.appendChild(script);
     }
+
+    if(!document.querySelector("script[data-offer-value-anchor-module]")){
+      const script=document.createElement("script");
+      script.src=`offer-value-anchor.js?v=1-${Date.now()}`;
+      script.async=false;
+      script.dataset.offerValueAnchorModule="";
+      document.head.appendChild(script);
+    }
   }
 
   function installStyles(){
