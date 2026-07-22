@@ -1,6 +1,12 @@
 (() => {
   "use strict";
 
+  const subtitle = "Veja o que as pesquisas realmente mostram sobre foco, memória e energia mental e aprenda um ritual de 3 minutos para parar de se perder em distrações antes mesmo de começar.";
+  const deck = document.querySelector(".article-deck");
+  if (deck) deck.textContent = subtitle;
+  document.querySelector('meta[name="description"]')?.setAttribute("content", subtitle);
+  document.querySelector('meta[property="og:description"]')?.setAttribute("content", subtitle);
+
   const body = document.querySelector(".article-body--longform");
   if (!body || body.dataset.inlineCtasInstalled === "true") return;
 
