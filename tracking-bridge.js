@@ -22,10 +22,11 @@
   const usePreviewTracker = params.get("ct_tracker_preview") === "1";
   const trackerSource = usePreviewTracker
     ? "https://analise-de-dados-fbads-git-agent-iter-2df228-otavioays-projects.vercel.app/tracker.js"
-    : "https://analise-de-dados-fbads.vercel.app/tracker.js";
+    : "https://track.gaiety.cloud/tracker.js";
+  const trackerEndpoint = "https://track.gaiety.cloud/api/events";
 
   const IMPRESSION_KEY = "gaiety_offer_cta_impressions_v2";
-  const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v1";
+  const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v2";
   const FUNNEL_TOUCH_KEY = "gaiety_funnel_touch_v1";
   const FUNNEL_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
   const STORAGE_PREFIX = "fbads_conversion_tracker";
@@ -58,7 +59,10 @@
   function writeSessionStorage(key, value) {
     try {
       window.sessionStorage.setItem(key, value);
-    } catch (_error) {}
+      return true;
+    } catch (_error) {
+      return false;
+    }
   }
 
   function validFunnelTouch() {
@@ -73,7 +77,9 @@
     if (!document.referrer) return false;
     try {
       const referrer = new URL(document.referrer);
-      const sameSite = referrer.hostname === "gaiety.cloud" || referrer.hostname === "www.gaiety.cloud";
+      const sameSite =
+        referrer.hostname === "gaiety.cloud" ||
+        referrer.hostname === "www.gaiety.cloud";
       return sameSite && referrer.pathname.startsWith("/editorial/");
     } catch (_error) {
       return false;
@@ -196,7 +202,9 @@
       return Promise.resolve(window.ConversionTracker);
     }
 
-    if (window.__gaietyConversionTrackerPromise) return window.__gaietyConversionTrackerPromise;
+    if (window.__gaietyConversionTrackerPromise) {
+      return window.__gaietyConversionTrackerPromise;
+    }
 
     window.__gaietyConversionTrackerPromise = new Promise((resolve) => {
       const existing = document.querySelector("script[data-gaiety-conversion-tracker]");
@@ -221,6 +229,7 @@
         script.src = trackerSource;
         script.async = true;
         script.dataset.gaietyConversionTracker = "true";
+        script.dataset.endpoint = trackerEndpoint;
         script.dataset.debug = "false";
         script.dataset.sessionTimeoutMinutes = "30";
         script.dataset.autoPageView = "true";
@@ -272,6 +281,13 @@
     try {
       const context = checkoutContext(extra);
       const url = new URL(baseUrl, window.location.href);
+      const directValues = {
+        ...context,
+        ct_page_type: context.page_type,
+        ct_journey_type: context.journey_type,
+        ct_funnel_id: context.funnel_id,
+        ct_entry_source: context.entry_source,
+      };
       const directKeys = [
         "ct_visitor_id",
         "ct_session_id",
@@ -287,14 +303,6 @@
         "utm_term",
         "fbclid",
       ];
-
-      const directValues = {
-        ...context,
-        ct_page_type: context.page_type,
-        ct_journey_type: context.journey_type,
-        ct_funnel_id: context.funnel_id,
-        ct_entry_source: context.entry_source,
-      };
 
       directKeys.forEach((key) => {
         const value = directValues[key];
@@ -346,7 +354,8 @@
   function ctaProperties(element) {
     return {
       placement: element.dataset.cta || "unknown",
-      element_text: (element.textContent || "").trim().replace(/\s+/g, " ").slice(0, 180) || null,
+      element_text:
+        (element.textContent || "").trim().replace(/\s+/g, " ").slice(0, 180) || null,
       destination: element.getAttribute("href") || null,
       cta_goal: "offer",
       pii_included: false,
@@ -389,9 +398,11 @@
       const placement = cta.dataset.cta || "unknown";
       const key = [window.location.pathname, placement].join(":");
       if (sent[key]) return;
-      sent[key] = new Date().toISOString();
-      writeImpressions(sent);
-      void track("cta_impression", ctaProperties(cta));
+      void track("cta_impression", ctaProperties(cta)).then((ok) => {
+        if (!ok) return;
+        sent[key] = new Date().toISOString();
+        writeImpressions(sent);
+      });
     };
 
     if (!("IntersectionObserver" in window)) {
@@ -415,10 +426,11 @@
 
   function sendClassifiedPageView() {
     if (readSessionStorage(CLASSIFIED_VIEW_KEY) === "1") return;
-    writeSessionStorage(CLASSIFIED_VIEW_KEY, "1");
     void track("sales_page_view", {
       landing_classification: PAGE_CONTEXT.journey_type,
       referrer_url: document.referrer || null,
+    }).then((ok) => {
+      if (ok) writeSessionStorage(CLASSIFIED_VIEW_KEY, "1");
     });
   }
 
