@@ -28,6 +28,14 @@
       script.dataset.scratchOffModule="";
       document.head.appendChild(script);
     }
+
+    if(!document.querySelector("script[data-scratch-image-swap-module]")){
+      const script=document.createElement("script");
+      script.src=`scratch-image-swap.js?v=1-${Date.now()}`;
+      script.async=false;
+      script.dataset.scratchImageSwapModule="";
+      document.head.appendChild(script);
+    }
   }
 
   function installStyles(){
