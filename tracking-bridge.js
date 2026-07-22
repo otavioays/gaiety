@@ -23,7 +23,7 @@
   const trackerSource = usePreviewTracker
     ? "https://analise-de-dados-fbads-git-agent-iter-2df228-otavioays-projects.vercel.app/tracker.js"
     : "https://track.gaiety.cloud/tracker.js";
-  const trackerEndpoint = "https://track.gaiety.cloud/api/events";
+  const trackerEndpoint = "/api/events";
 
   const IMPRESSION_KEY = "gaiety_offer_cta_impressions_v2";
   const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v2";
