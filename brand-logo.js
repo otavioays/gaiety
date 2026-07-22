@@ -20,6 +20,14 @@
       script.dataset.salesPageRefresh="";
       document.head.appendChild(script);
     }
+
+    if(!document.querySelector("script[data-scratch-off-module]")){
+      const script=document.createElement("script");
+      script.src=`scratch-off.js?v=1-${Date.now()}`;
+      script.async=false;
+      script.dataset.scratchOffModule="";
+      document.head.appendChild(script);
+    }
   }
 
   function installStyles(){
