@@ -178,7 +178,7 @@
       catch(_error){}
       trackMetaEvent("ViewContent",{
         currency:"BRL",
-        value:83,
+        value:84,
         content_ids:[PRODUCT_ID],
         content_type:"product",
         content_name:"Mushroom Complex",
@@ -187,8 +187,8 @@
         trackerEventName:"product_view",
         trackerProperties:{
           product_id:PRODUCT_ID,
-          minimum_price:83,
-          maximum_price:150,
+          minimum_price:84,
+          maximum_price:156,
           offer_count:2,
           placement:"sales_page"
         }
@@ -233,7 +233,7 @@
         product_id:PRODUCT_ID,
         variant_id:VARIANT_IDS[units],
         offer_units:units,
-        offer_price:units===2 ? 150 : 83,
+        offer_price:units===2 ? 156 : 84,
         element_text:"Comprar agora"
       });
     };
@@ -266,7 +266,7 @@
       </div>`;
   }
 
-  function offerCard({units,price,compare,featured}){
+  function offerCard({units,installment,compare,featured}){
     return `
       <article class="offer-card${featured ? " offer-card--featured" : ""}" data-offer-card="${units}">
         ${featured ? '<div class="offer-card__ribbon">★ Mais vantajoso ★</div>' : ""}
@@ -279,7 +279,7 @@
         </div>
         <div class="offer-card__price-row">
           ${compare ? `<span class="offer-card__compare">${compare}</span>` : ""}
-          <strong class="offer-card__price"><small>R$</small>${price}</strong>
+          <strong class="offer-card__price"><small>12x de R$</small>${installment}</strong>
         </div>
         <button class="offer-card__button" type="button" data-offer-button="${units}" data-checkout-url="${CHECKOUT_URLS[units]}"><span>🛒</span> Comprar agora</button>
         <div class="offer-card__meta"><span>🚚 Envio rápido</span><span>🛡️ Garantia de satisfação</span></div>
@@ -309,8 +309,8 @@
           <p>Garanta seu Mushroom Complex com o melhor custo-benefício.</p>
         </header>
         <div class="final-offer__grid">
-          ${offerCard({units:2,price:"150",compare:"R$166",featured:true})}
-          ${offerCard({units:1,price:"83",compare:"",featured:false})}
+          ${offerCard({units:2,installment:"13",compare:"R$166",featured:true})}
+          ${offerCard({units:1,installment:"7",compare:"",featured:false})}
         </div>
         <div class="final-offer__trust">
           <article><i>🌿</i><div><strong>100% Natural</strong><p>Ingredientes de origem natural e segura.</p></div></article>
@@ -327,7 +327,7 @@
     section.querySelectorAll("[data-offer-button]").forEach(button=>{
       button.addEventListener("click",()=>{
         const units=Number(button.dataset.offerButton||0);
-        const price=units===2 ? 150 : 83;
+        const price=units===2 ? 156 : 84;
         const variantId=VARIANT_IDS[units];
         const baseCheckoutUrl=button.dataset.checkoutUrl;
         const checkoutId=createEventId("checkout");
