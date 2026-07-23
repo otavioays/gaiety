@@ -9,11 +9,10 @@
     2: "64223935299953"
   };
   const CHECKOUT_URLS = {
-    1: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[1]}:1?checkout`,
-    2: `https://gaiety-6507.myshopify.com/cart/${VARIANT_IDS[2]}:1?checkout`
+    1: `https://tedyzw-27.myshopify.com/cart/${VARIANT_IDS[1]}:1?checkout`,
+    2: `https://tedyzw-27.myshopify.com/cart/${VARIANT_IDS[2]}:1?checkout`
   };
   const VIEW_CONTENT_KEY = "gaiety_meta_view_content_v3";
-  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v3";
   const OFFER_IMPRESSION_KEY = "gaiety_offer_impressions_v1";
 
   function loadStyle(){
@@ -43,17 +42,6 @@
     document.head.appendChild(script);
   }
 
-  function readCookie(name){
-    const prefix=`${name}=`;
-    const cookie=document.cookie
-      .split(";")
-      .map(part=>part.trim())
-      .find(part=>part.startsWith(prefix));
-    if(!cookie) return undefined;
-    try{return decodeURIComponent(cookie.slice(prefix.length));}
-    catch(_error){return cookie.slice(prefix.length);}
-  }
-
   function trackerEvent(name,properties,options){
     const bridge=window.GaietyTracking;
     if(bridge && typeof bridge.track==="function"){
@@ -73,29 +61,8 @@
     return baseUrl;
   }
 
-  function ensureCorrectMetaPixel(){
-    if(typeof window.fbq!=="function") return false;
-
-    try{
-      if(!window.__gaietyMetaPixelInitialized){
-        window.fbq("init",META_PIXEL_ID);
-        window.__gaietyMetaPixelInitialized=true;
-      }
-
-      let pageViewSent=false;
-      try{pageViewSent=window.sessionStorage.getItem(PAGE_VIEW_KEY)==="1";}
-      catch(_error){}
-
-      if(!pageViewSent){
-        window.fbq("trackSingle",META_PIXEL_ID,"PageView");
-        try{window.sessionStorage.setItem(PAGE_VIEW_KEY,"1");}
-        catch(_error){}
-      }
-
-      return true;
-    }catch(_error){
-      return false;
-    }
+  function metaPixelReady(){
+    return typeof window.fbq==="function";
   }
 
   function createEventId(eventName){
@@ -105,40 +72,10 @@
     return `gaiety-${eventName.toLowerCase()}-${random}`;
   }
 
-  function sendServerEvent(eventName,eventId,customData,{preferBeacon=false}={}){
-    const payload={
-      event_name:eventName,
-      event_id:eventId,
-      event_source_url:window.location.href,
-      fbp:readCookie("_fbp"),
-      fbc:readCookie("_fbc"),
-      ...customData
-    };
-    const body=JSON.stringify(payload);
-
-    if(preferBeacon && typeof navigator.sendBeacon==="function"){
-      try{
-        const queued=navigator.sendBeacon(
-          "/api/meta-capi",
-          new Blob([body],{type:"application/json"})
-        );
-        if(queued) return Promise.resolve(true);
-      }catch(_error){}
-    }
-
-    return fetch("/api/meta-capi",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body,
-      keepalive:true,
-      credentials:"same-origin"
-    }).then(response=>response.ok).catch(()=>false);
-  }
-
   function trackMetaEvent(eventName,customData,options={}){
     const eventId=createEventId(eventName);
 
-    if(ensureCorrectMetaPixel()){
+    if(metaPixelReady()){
       try{
         window.fbq("trackSingle",META_PIXEL_ID,eventName,customData,{eventID:eventId});
       }catch(_error){}
@@ -154,13 +91,12 @@
           meta_event_name:eventName,
           meta_pixel_id:META_PIXEL_ID,
           browser_event_requested:true,
-          server_event_requested:true
+          server_event_requested:false
         },
         options.preferBeacon ? {beacon:true} : {}
       );
     }
 
-    void sendServerEvent(eventName,eventId,customData,options);
     return eventId;
   }
 
@@ -343,7 +279,7 @@
           checkout_provider:"shopify",
           checkout_id:checkoutId,
           ct_checkout_id:checkoutId,
-          destination_host:"gaiety-6507.myshopify.com"
+          destination_host:"tedyzw-27.myshopify.com"
         };
 
         void trackerEvent("buy_button_click",checkoutProperties,{beacon:true});
@@ -373,7 +309,6 @@
   }
 
   function initialize(){
-    ensureCorrectMetaPixel();
     loadStyle();
     loadFaqModule();
     loadBrandLogoModule();
