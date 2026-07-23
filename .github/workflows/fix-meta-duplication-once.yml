@@ -22,108 +22,57 @@ jobs:
 
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path("final-offer.js")
           text = path.read_text(encoding="utf-8")
 
-          replacements = [
-              (
-                  '  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v3";\n',
-                  '',
-              ),
-              (
-                  '''  function readCookie(name){
-            const prefix=`${name}=`;
-            const cookie=document.cookie
-              .split(";")
-              .map(part=>part.trim())
-              .find(part=>part.startsWith(prefix));
-            if(!cookie) return undefined;
-            try{return decodeURIComponent(cookie.slice(prefix.length));}
-            catch(_error){return cookie.slice(prefix.length);}
+          def sub_once(pattern, replacement, source, label):
+              updated, count = re.subn(pattern, replacement, source, count=1, flags=re.S)
+              if count != 1:
+                  raise SystemExit(f"Expected exactly one match for {label}, found {count}")
+              return updated
+
+          text = sub_once(
+              r'^\s*const PAGE_VIEW_KEY = "gaiety_meta_page_view_v3";\n',
+              '',
+              text,
+              'PAGE_VIEW_KEY',
+          )
+
+          text = sub_once(
+              r'\n\s*function readCookie\(name\)\{.*?\n\s*function trackerEvent',
+              '\n\n  function trackerEvent',
+              text,
+              'readCookie block',
+          )
+
+          text = sub_once(
+              r'\n\s*function ensureCorrectMetaPixel\(\)\{.*?\n\s*function createEventId',
+              '\n\n  function metaPixelReady(){\n    return typeof window.fbq==="function";\n  }\n\n  function createEventId',
+              text,
+              'duplicate Pixel initializer',
+          )
+
+          text = sub_once(
+              r'\n\s*function sendServerEvent\(.*?\n\s*function trackMetaEvent',
+              '\n\n  function trackMetaEvent',
+              text,
+              'legacy CAPI sender',
+          )
+
+          required_replacements = {
+              'if(ensureCorrectMetaPixel())': 'if(metaPixelReady())',
+              'server_event_requested:true': 'server_event_requested:false',
+              '\n    void sendServerEvent(eventName,eventId,customData,options);': '',
+              '\n    ensureCorrectMetaPixel();': '',
+              'https://gaiety-6507.myshopify.com/cart/': 'https://tedyzw-27.myshopify.com/cart/',
+              'destination_host:"gaiety-6507.myshopify.com"': 'destination_host:"tedyzw-27.myshopify.com"',
           }
 
-          ''',
-                  '',
-              ),
-              (
-                  '''  function ensureCorrectMetaPixel(){
-            if(typeof window.fbq!=="function") return false;
-
-            try{
-              if(!window.__gaietyMetaPixelInitialized){
-                window.fbq("init",META_PIXEL_ID);
-                window.__gaietyMetaPixelInitialized=true;
-              }
-
-              let pageViewSent=false;
-              try{pageViewSent=window.sessionStorage.getItem(PAGE_VIEW_KEY)==="1";}
-              catch(_error){}
-
-              if(!pageViewSent){
-                window.fbq("trackSingle",META_PIXEL_ID,"PageView");
-                try{window.sessionStorage.setItem(PAGE_VIEW_KEY,"1");}
-                catch(_error){}
-              }
-
-              return true;
-            }catch(_error){
-              return false;
-            }
-          }
-
-          ''',
-                  '''  function metaPixelReady(){
-            return typeof window.fbq==="function";
-          }
-
-          ''',
-              ),
-              (
-                  '''  function sendServerEvent(eventName,eventId,customData,{preferBeacon=false}={}){
-            const payload={
-              event_name:eventName,
-              event_id:eventId,
-              event_source_url:window.location.href,
-              fbp:readCookie("_fbp"),
-              fbc:readCookie("_fbc"),
-              ...customData
-            };
-            const body=JSON.stringify(payload);
-
-            if(preferBeacon && typeof navigator.sendBeacon==="function"){
-              try{
-                const queued=navigator.sendBeacon(
-                  "/api/meta-capi",
-                  new Blob([body],{type:"application/json"})
-                );
-                if(queued) return Promise.resolve(true);
-              }catch(_error){}
-            }
-
-            return fetch("/api/meta-capi",{
-              method:"POST",
-              headers:{"Content-Type":"application/json"},
-              body,
-              keepalive:true,
-              credentials:"same-origin"
-            }).then(response=>response.ok).catch(()=>false);
-          }
-
-          ''',
-                  '',
-              ),
-              ('    if(ensureCorrectMetaPixel()){\n', '    if(metaPixelReady()){\n'),
-              ('          server_event_requested:true\n', '          server_event_requested:false\n'),
-              ('\n    void sendServerEvent(eventName,eventId,customData,options);\n', '\n'),
-              ('    ensureCorrectMetaPixel();\n', ''),
-              ('https://gaiety-6507.myshopify.com/cart/', 'https://tedyzw-27.myshopify.com/cart/'),
-              ('destination_host:"gaiety-6507.myshopify.com"', 'destination_host:"tedyzw-27.myshopify.com"'),
-          ]
-
-          for old, new in replacements:
+          for old, new in required_replacements.items():
               if old not in text:
-                  raise SystemExit(f"Expected fragment not found:\n{old[:180]}")
+                  raise SystemExit(f"Expected fragment not found: {old}")
               text = text.replace(old, new, 1)
 
           path.write_text(text, encoding="utf-8")
