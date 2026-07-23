@@ -1,0 +1,144 @@
+name: Fix duplicate Meta browser and legacy server events
+
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-meta-duplication-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix-meta-duplication:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Remove duplicate Pixel initialization and legacy CAPI calls
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("final-offer.js")
+          text = path.read_text(encoding="utf-8")
+
+          replacements = [
+              (
+                  '  const PAGE_VIEW_KEY = "gaiety_meta_page_view_v3";\n',
+                  '',
+              ),
+              (
+                  '''  function readCookie(name){
+            const prefix=`${name}=`;
+            const cookie=document.cookie
+              .split(";")
+              .map(part=>part.trim())
+              .find(part=>part.startsWith(prefix));
+            if(!cookie) return undefined;
+            try{return decodeURIComponent(cookie.slice(prefix.length));}
+            catch(_error){return cookie.slice(prefix.length);}
+          }
+
+          ''',
+                  '',
+              ),
+              (
+                  '''  function ensureCorrectMetaPixel(){
+            if(typeof window.fbq!=="function") return false;
+
+            try{
+              if(!window.__gaietyMetaPixelInitialized){
+                window.fbq("init",META_PIXEL_ID);
+                window.__gaietyMetaPixelInitialized=true;
+              }
+
+              let pageViewSent=false;
+              try{pageViewSent=window.sessionStorage.getItem(PAGE_VIEW_KEY)==="1";}
+              catch(_error){}
+
+              if(!pageViewSent){
+                window.fbq("trackSingle",META_PIXEL_ID,"PageView");
+                try{window.sessionStorage.setItem(PAGE_VIEW_KEY,"1");}
+                catch(_error){}
+              }
+
+              return true;
+            }catch(_error){
+              return false;
+            }
+          }
+
+          ''',
+                  '''  function metaPixelReady(){
+            return typeof window.fbq==="function";
+          }
+
+          ''',
+              ),
+              (
+                  '''  function sendServerEvent(eventName,eventId,customData,{preferBeacon=false}={}){
+            const payload={
+              event_name:eventName,
+              event_id:eventId,
+              event_source_url:window.location.href,
+              fbp:readCookie("_fbp"),
+              fbc:readCookie("_fbc"),
+              ...customData
+            };
+            const body=JSON.stringify(payload);
+
+            if(preferBeacon && typeof navigator.sendBeacon==="function"){
+              try{
+                const queued=navigator.sendBeacon(
+                  "/api/meta-capi",
+                  new Blob([body],{type:"application/json"})
+                );
+                if(queued) return Promise.resolve(true);
+              }catch(_error){}
+            }
+
+            return fetch("/api/meta-capi",{
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
+              body,
+              keepalive:true,
+              credentials:"same-origin"
+            }).then(response=>response.ok).catch(()=>false);
+          }
+
+          ''',
+                  '',
+              ),
+              ('    if(ensureCorrectMetaPixel()){\n', '    if(metaPixelReady()){\n'),
+              ('          server_event_requested:true\n', '          server_event_requested:false\n'),
+              ('\n    void sendServerEvent(eventName,eventId,customData,options);\n', '\n'),
+              ('    ensureCorrectMetaPixel();\n', ''),
+              ('https://gaiety-6507.myshopify.com/cart/', 'https://tedyzw-27.myshopify.com/cart/'),
+              ('destination_host:"gaiety-6507.myshopify.com"', 'destination_host:"tedyzw-27.myshopify.com"'),
+          ]
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit(f"Expected fragment not found:\n{old[:180]}")
+              text = text.replace(old, new, 1)
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+          rm -f .github/workflows/fix-meta-duplication-once.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+
+          git commit -m "fix: remove duplicate Meta Pixel and legacy CAPI calls"
+          git push
