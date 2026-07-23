@@ -7,7 +7,7 @@
   const TRACKER_SOURCE = "gaiety-tracker-v2.js?v=20260723-2";
   const TRACKING_ENDPOINT = "https://events.gaiety.cloud";
   const SITE_KEY = "gaiety-main";
-  const BROWSER_INGEST_TOKEN = "site_DzYL53BKVoLOeI4Vm3D-8xHfyQF5tc7Groot";
+  const BROWSER_INGEST_TOKEN = "site_DzYL53BKVoLOeI4Vm3D-8xHfyQF5tc7G";
   const TRACKING_VERSION = 5;
   const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v3";
   const FUNNEL_TOUCH_KEY = "gaiety_funnel_touch_v1";
