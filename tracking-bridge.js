@@ -1,35 +1,21 @@
 (function installGaietyTrackingBridge() {
   "use strict";
 
-  const bootstrapParams = new URLSearchParams(window.location.search);
-  if (
-    bootstrapParams.get("ct_tracker_preview") === "1" ||
-    bootstrapParams.get("ct_rich_telemetry") === "1"
-  ) {
-    if (window.__gaietyRichPreviewLoading) return;
-    window.__gaietyRichPreviewLoading = true;
-    const richScript = document.createElement("script");
-    richScript.src = "tracking-rich-preview.js?v=ritual-nitido-1";
-    richScript.async = false;
-    document.head.appendChild(richScript);
-    return;
-  }
-
   if (window.__gaietyTrackingBridgeInstalled) return;
   window.__gaietyTrackingBridgeInstalled = true;
 
-  const params = new URLSearchParams(window.location.search);
-  const usePreviewTracker = params.get("ct_tracker_preview") === "1";
-  const trackerSource = usePreviewTracker
-    ? "https://analise-de-dados-fbads-git-agent-iter-2df228-otavioays-projects.vercel.app/tracker.js"
-    : "https://track.gaiety.cloud/tracker.js";
-  const trackerEndpoint = "/api/events";
-
-  const IMPRESSION_KEY = "gaiety_offer_cta_impressions_v2";
-  const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v2";
+  const TRACKER_SOURCE = "gaiety-tracker-v2.js?v=20260723-2";
+  const TRACKING_ENDPOINT = "https://events.gaiety.cloud";
+  const SITE_KEY = "gaiety-main";
+  const BROWSER_INGEST_TOKEN = "site_DzYL53BKVoLOeI4Vm3D-8xHfyQF5tc7Groot";
+  const TRACKING_VERSION = 5;
+  const CLASSIFIED_VIEW_KEY = "gaiety_sales_page_view_v3";
   const FUNNEL_TOUCH_KEY = "gaiety_funnel_touch_v1";
   const FUNNEL_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
-  const STORAGE_PREFIX = "fbads_conversion_tracker";
+  const params = new URLSearchParams(window.location.search);
+
+  let trackerInstance = null;
+  let trackerPromise = null;
 
   function safeJson(value) {
     if (!value) return null;
@@ -59,7 +45,15 @@
   function writeSessionStorage(key, value) {
     try {
       window.sessionStorage.setItem(key, value);
-      return true;
+    } catch (_error) {}
+  }
+
+  function referrerIsEditorial() {
+    if (!document.referrer) return false;
+    try {
+      const referrer = new URL(document.referrer);
+      const sameSite = ["gaiety.cloud", "www.gaiety.cloud"].includes(referrer.hostname);
+      return sameSite && referrer.pathname.startsWith("/editorial/");
     } catch (_error) {
       return false;
     }
@@ -73,41 +67,18 @@
     return touch;
   }
 
-  function referrerIsEditorial() {
-    if (!document.referrer) return false;
-    try {
-      const referrer = new URL(document.referrer);
-      const sameSite =
-        referrer.hostname === "gaiety.cloud" ||
-        referrer.hostname === "www.gaiety.cloud";
-      return sameSite && referrer.pathname.startsWith("/editorial/");
-    } catch (_error) {
-      return false;
-    }
-  }
-
   function resolveJourney() {
+    const priorTouch = validFunnelTouch();
     const explicitFunnel =
       params.get("ct_entry") === "funnel" ||
       params.get("ct_funnel") === "editorial" ||
       params.get("ct_page_type") === "funnel";
-    const editorialReferrer = referrerIsEditorial();
-    const priorTouch = validFunnelTouch();
 
-    if (explicitFunnel) {
+    if (explicitFunnel || referrerIsEditorial()) {
       return {
         journey_type: "funnel_to_sales",
         previous_page_type: "funnel",
-        entry_source: "editorial_cta",
-        funnel_touch_at: priorTouch?.seen_at || null,
-      };
-    }
-
-    if (editorialReferrer) {
-      return {
-        journey_type: "funnel_to_sales",
-        previous_page_type: "funnel",
-        entry_source: "editorial_referrer",
+        entry_source: explicitFunnel ? "editorial_cta" : "editorial_referrer",
         funnel_touch_at: priorTouch?.seen_at || null,
       };
     }
@@ -142,7 +113,7 @@
     product_name: "Mushroom Complex",
     product_category: "Foco e bem-estar",
     offer_stage: "direct_sale",
-    page_version: "gaiety-mushroom-complex-v1",
+    page_version: "gaiety-mushroom-complex-v2",
     currency: "BRL",
     entry_price: 83,
     meta_pixel_id: "1725992278652713",
@@ -151,277 +122,180 @@
     ...PAGE_CONTEXT,
   });
 
-  function currentAttribution() {
-    const current = new URLSearchParams(window.location.search);
-    const sessionAttribution = safeJson(
-      readStorage(`${STORAGE_PREFIX}_session_attribution_v2`),
-    );
-    const firstTouch = safeJson(readStorage(`${STORAGE_PREFIX}_first_touch`));
-    const stored = sessionAttribution?.attribution || firstTouch || {};
-
-    return {
-      utm_source: current.get("utm_source") || stored.utm_source || null,
-      utm_medium: current.get("utm_medium") || stored.utm_medium || null,
-      utm_campaign: current.get("utm_campaign") || stored.utm_campaign || null,
-      utm_content: current.get("utm_content") || stored.utm_content || null,
-      utm_term: current.get("utm_term") || stored.utm_term || null,
-      fbclid: current.get("fbclid") || stored.fbclid || null,
-    };
+  function getConsent() {
+    const consent = window.gaietyConsent;
+    if (consent && typeof consent === "object") {
+      return {
+        analytics: consent.analytics === true,
+        marketing: consent.marketing === true,
+      };
+    }
+    return { analytics: true, marketing: false };
   }
 
-  function storedTrackerContext() {
-    const session = safeJson(readStorage(`${STORAGE_PREFIX}_session_v2`));
-    return {
-      visitor_id: readStorage(`${STORAGE_PREFIX}_visitor_id`) || null,
-      session_id: session?.id || null,
-    };
-  }
+  function createTracker() {
+    if (trackerInstance) return trackerInstance;
+    if (!window.GaietyTracker || typeof window.GaietyTracker.create !== "function") {
+      throw new Error("GaietyTracker V2 did not load");
+    }
 
-  function trackerContext(tracker) {
-    const stored = storedTrackerContext();
-    let visitorId = stored.visitor_id;
-    let sessionId = stored.session_id;
-    let pageInstanceId = null;
-
-    try {
-      visitorId = tracker?.getVisitorId?.() || visitorId;
-      sessionId = tracker?.getSessionId?.() || sessionId;
-      pageInstanceId = tracker?.getPageInstanceId?.() || null;
-    } catch (_error) {}
-
-    return {
-      ct_visitor_id: visitorId,
-      ct_session_id: sessionId,
-      ct_page_instance_id: pageInstanceId,
-      ...currentAttribution(),
-    };
+    trackerInstance = window.GaietyTracker.create({
+      endpoint: TRACKING_ENDPOINT,
+      siteKey: SITE_KEY,
+      token: BROWSER_INGEST_TOKEN,
+      trackingVersion: TRACKING_VERSION,
+      getConsent,
+    });
+    window.__gaietyTrackerV2 = trackerInstance;
+    return trackerInstance;
   }
 
   function loadTracker() {
-    if (window.ConversionTracker && typeof window.ConversionTracker.track === "function") {
-      return Promise.resolve(window.ConversionTracker);
-    }
+    if (trackerInstance) return Promise.resolve(trackerInstance);
+    if (trackerPromise) return trackerPromise;
 
-    if (window.__gaietyConversionTrackerPromise) {
-      return window.__gaietyConversionTrackerPromise;
-    }
-
-    window.__gaietyConversionTrackerPromise = new Promise((resolve) => {
-      const existing = document.querySelector("script[data-gaiety-conversion-tracker]");
-      const script = existing || document.createElement("script");
-      let attempts = 0;
-
-      const finishWhenReady = () => {
-        if (window.ConversionTracker && typeof window.ConversionTracker.track === "function") {
-          resolve(window.ConversionTracker);
-          return;
+    trackerPromise = new Promise((resolve, reject) => {
+      const finish = () => {
+        try {
+          resolve(createTracker());
+        } catch (error) {
+          reject(error);
         }
-
-        attempts += 1;
-        if (attempts >= 100) {
-          resolve(null);
-          return;
-        }
-        window.setTimeout(finishWhenReady, 50);
       };
 
-      if (!existing) {
-        script.src = trackerSource;
-        script.async = true;
-        script.dataset.gaietyConversionTracker = "true";
-        script.dataset.endpoint = trackerEndpoint;
-        script.dataset.debug = "false";
-        script.dataset.sessionTimeoutMinutes = "30";
-        script.dataset.autoPageView = "true";
-        script.dataset.autoBehavior = "true";
-        script.dataset.pageType = PAGE_CONTEXT.page_type;
-        script.dataset.funnelStage = PAGE_CONTEXT.funnel_stage;
-        script.dataset.pageName = PAGE_CONTEXT.page_name;
-        script.dataset.funnelId = PAGE_CONTEXT.funnel_id;
-        script.dataset.journeyType = PAGE_CONTEXT.journey_type;
-        script.addEventListener("load", finishWhenReady, { once: true });
-        script.addEventListener("error", () => resolve(null), { once: true });
-        document.head.appendChild(script);
-      } else {
-        finishWhenReady();
+      if (window.GaietyTracker && typeof window.GaietyTracker.create === "function") {
+        finish();
+        return;
       }
+
+      const existing = document.querySelector("script[data-gaiety-tracker-v2]");
+      if (existing) {
+        existing.addEventListener("load", finish, { once: true });
+        existing.addEventListener("error", () => reject(new Error("Tracker script failed")), { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = TRACKER_SOURCE;
+      script.async = true;
+      script.dataset.gaietyTrackerV2 = "true";
+      script.addEventListener("load", finish, { once: true });
+      script.addEventListener("error", () => reject(new Error("Tracker script failed")), { once: true });
+      document.head.appendChild(script);
     });
 
-    return window.__gaietyConversionTrackerPromise;
+    return trackerPromise;
   }
 
   function track(name, properties, options) {
+    const settings = options || {};
     return loadTracker()
-      .then((tracker) => {
-        if (!tracker) return false;
-        return tracker.track(
-          name,
-          Object.assign({}, OFFER, PAGE_CONTEXT, trackerContext(tracker), properties || {}),
-          options || {},
-        );
-      })
-      .catch(() => false);
+      .then((tracker) => tracker.track(
+        name,
+        Object.assign({}, OFFER, PAGE_CONTEXT, properties || {}),
+        {
+          eventId: settings.eventId || settings.eventID,
+          isTest: settings.isTest === true || params.get("ct_test") === "1",
+          keepalive: settings.keepalive === true || settings.beacon === true,
+        },
+      ))
+      .catch((error) => {
+        console.error("Gaiety tracking error", error);
+        return false;
+      });
   }
 
-  function checkoutContext(extra) {
-    return Object.assign(
-      {},
-      OFFER,
-      PAGE_CONTEXT,
-      trackerContext(window.ConversionTracker),
-      {
-        ct_origin: "gaiety",
-        source_page_url: window.location.href,
-      },
-      extra || {},
-    );
+  function checkout(offerKey, settings) {
+    const config = settings || {};
+    return loadTracker().then((tracker) => tracker.checkout(offerKey, {
+      idempotencyKey: config.idempotencyKey || config.checkoutId,
+      isTest: config.isTest === true || params.get("ct_test") === "1",
+      testReason: config.testReason || (params.get("ct_test") === "1" ? "query_parameter" : undefined),
+    }));
   }
 
-  function buildCheckoutUrl(baseUrl, extra) {
+  function identity() {
     try {
-      const context = checkoutContext(extra);
-      const url = new URL(baseUrl, window.location.href);
-      const directValues = {
-        ...context,
-        ct_page_type: context.page_type,
-        ct_journey_type: context.journey_type,
-        ct_funnel_id: context.funnel_id,
-        ct_entry_source: context.entry_source,
-      };
-      const directKeys = [
-        "ct_visitor_id",
-        "ct_session_id",
-        "ct_checkout_id",
-        "ct_page_type",
-        "ct_journey_type",
-        "ct_funnel_id",
-        "ct_entry_source",
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_content",
-        "utm_term",
-        "fbclid",
-      ];
-
-      directKeys.forEach((key) => {
-        const value = directValues[key];
-        if (value !== null && value !== undefined && value !== "") {
-          url.searchParams.set(key, String(value));
-        }
-      });
-
-      const attributeMap = {
-        ct_visitor_id: context.ct_visitor_id,
-        ct_session_id: context.ct_session_id,
-        ct_page_instance_id: context.ct_page_instance_id,
-        ct_checkout_id: context.ct_checkout_id || context.checkout_id,
-        ct_origin: context.ct_origin,
-        ct_page_type: context.page_type,
-        ct_funnel_stage: context.funnel_stage,
-        ct_page_name: context.page_name,
-        ct_funnel_id: context.funnel_id,
-        ct_journey_type: context.journey_type,
-        ct_previous_page_type: context.previous_page_type,
-        ct_entry_source: context.entry_source,
-        ct_product_id: context.product_id,
-        ct_variant_id: context.variant_id,
-        ct_offer_units: context.offer_units,
-        ct_utm_source: context.utm_source,
-        ct_utm_medium: context.utm_medium,
-        ct_utm_campaign: context.utm_campaign,
-        ct_utm_content: context.utm_content,
-        ct_utm_term: context.utm_term,
-        ct_fbclid: context.fbclid,
-      };
-
-      Object.entries(attributeMap).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && value !== "") {
-          url.searchParams.set(`attributes[${key}]`, String(value));
-        }
-      });
-
-      url.searchParams.set("ref", "gaiety");
-      return url
-        .toString()
-        .replace("?checkout=&", "?checkout&")
-        .replace("&checkout=&", "&checkout&");
+      return trackerInstance?.getIdentity?.() || null;
     } catch (_error) {
-      return baseUrl;
+      return null;
     }
   }
 
-  function ctaProperties(element) {
+  function createEventId(eventName) {
+    const random = window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return `gaiety-${String(eventName).toLowerCase()}-${random}`;
+  }
+
+  function offerForUnits(units) {
     return {
-      placement: element.dataset.cta || "unknown",
-      element_text:
-        (element.textContent || "").trim().replace(/\s+/g, " ").slice(0, 180) || null,
-      destination: element.getAttribute("href") || null,
-      cta_goal: "offer",
-      pii_included: false,
-      tracker_channel: usePreviewTracker ? "preview" : "production",
-    };
+      1: { offerKey: "one_package", variantId: "64223935332721", value: 84 },
+      2: { offerKey: "two_packages", variantId: "64223935299953", value: 156 },
+      5: { offerKey: "five_packages", variantId: "64223935234417", value: null },
+    }[units] || null;
   }
 
-  function readImpressions() {
+  function sendBrowserInitiateCheckout(units, offer, eventId) {
+    if (typeof window.fbq !== "function") return;
     try {
-      return JSON.parse(window.sessionStorage.getItem(IMPRESSION_KEY) || "{}") || {};
-    } catch (_error) {
-      return {};
-    }
-  }
-
-  function writeImpressions(value) {
-    try {
-      window.sessionStorage.setItem(IMPRESSION_KEY, JSON.stringify(value));
+      window.fbq("trackSingle", OFFER.meta_pixel_id, "InitiateCheckout", {
+        currency: "BRL",
+        value: offer.value,
+        content_ids: [offer.variantId],
+        content_type: "product",
+        content_name: `Mushroom Complex - ${units} ${units === 1 ? "unidade" : "unidades"}`,
+        content_category: "Foco e bem-estar",
+        num_items: units,
+      }, { eventID: eventId });
     } catch (_error) {}
   }
 
-  function installCtaTracking() {
-    const ctas = Array.from(document.querySelectorAll("[data-cta]"));
-    if (!ctas.length) return;
+  function installCheckoutInterception() {
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target || typeof target.closest !== "function") return;
+      const button = target.closest("[data-offer-button]");
+      if (!button) return;
 
-    document.addEventListener(
-      "click",
-      (event) => {
-        const target = event.target;
-        if (!target || typeof target.closest !== "function") return;
-        const cta = target.closest("[data-cta]");
-        if (!cta) return;
-        void track("cta_click", ctaProperties(cta), { beacon: true });
-      },
-      true,
-    );
+      const units = Number(button.dataset.offerButton || 0);
+      const offer = offerForUnits(units);
+      if (!offer) return;
 
-    const sent = readImpressions();
-    const sendImpression = (cta) => {
-      const placement = cta.dataset.cta || "unknown";
-      const key = [window.location.pathname, placement].join(":");
-      if (sent[key]) return;
-      void track("cta_impression", ctaProperties(cta)).then((ok) => {
-        if (!ok) return;
-        sent[key] = new Date().toISOString();
-        writeImpressions(sent);
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (button.dataset.trackerBusy === "1") return;
+
+      button.dataset.trackerBusy = "1";
+      button.disabled = true;
+      const checkoutId = createEventId("checkout");
+      const properties = {
+        product_id: OFFER.product_id,
+        variant_id: offer.variantId,
+        offer_key: offer.offerKey,
+        offer_units: units,
+        quantity: 1,
+        value: offer.value,
+        cart_value: offer.value,
+        currency: "BRL",
+        placement: "final_offer",
+        checkout_provider: "shopify",
+        checkout_id: checkoutId,
+        ct_checkout_id: checkoutId,
+        destination_host: "tedyzw-27.myshopify.com",
+      };
+
+      sendBrowserInitiateCheckout(units, offer, checkoutId);
+      void track("buy_button_click", properties, { eventId: checkoutId, keepalive: true });
+
+      checkout(offer.offerKey, { idempotencyKey: checkoutId }).catch((error) => {
+        console.error("Checkout handoff failed", error);
+        button.dataset.trackerBusy = "0";
+        button.disabled = false;
+        window.location.assign(`https://tedyzw-27.myshopify.com/cart/${offer.variantId}:1?checkout`);
       });
-    };
-
-    if (!("IntersectionObserver" in window)) {
-      ctas.forEach(sendImpression);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting || entry.intersectionRatio < 0.5) return;
-          sendImpression(entry.target);
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: [0.5] },
-    );
-
-    ctas.forEach((cta) => observer.observe(cta));
+    }, true);
   }
 
   function sendClassifiedPageView() {
@@ -429,27 +303,33 @@
     void track("sales_page_view", {
       landing_classification: PAGE_CONTEXT.journey_type,
       referrer_url: document.referrer || null,
-    }).then((ok) => {
-      if (ok) writeSessionStorage(CLASSIFIED_VIEW_KEY, "1");
+    }).then((result) => {
+      if (result) writeSessionStorage(CLASSIFIED_VIEW_KEY, "1");
     });
   }
 
+  window.ConversionTracker = Object.freeze({
+    track,
+    ready: loadTracker,
+    getVisitorId: () => identity()?.visitor_id || null,
+    getSessionId: () => identity()?.session_id || null,
+    getPageInstanceId: () => null,
+  });
+
   window.GaietyTracking = Object.freeze({
     track,
+    checkout,
     ready: loadTracker,
     offer: OFFER,
     page: PAGE_CONTEXT,
-    context: checkoutContext,
-    buildCheckoutUrl,
+    context: (extra) => Object.assign({}, OFFER, PAGE_CONTEXT, identity() || {}, extra || {}),
+    buildCheckoutUrl: (baseUrl) => baseUrl,
   });
 
-  loadTracker();
+  installCheckoutInterception();
+  loadTracker().catch((error) => console.error("Gaiety tracker failed to load", error));
 
-  const initialize = () => {
-    installCtaTracking();
-    sendClassifiedPageView();
-  };
-
+  const initialize = () => sendClassifiedPageView();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initialize, { once: true });
   } else {
