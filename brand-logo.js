@@ -2,7 +2,7 @@
   "use strict";
 
   const LOGO_URL="https://cdn.shopify.com/s/files/1/1027/4285/1953/files/gaiety-logo-original.png?v=1784562981";
-  const SALE_END_AT=new Date("2026-07-22T23:59:59-03:00").getTime();
+  const SALE_END_AT=new Date("2026-07-26T23:59:59-03:00").getTime();
 
   function loadSalesPageRefresh(){
     if(!document.querySelector("link[data-sales-page-refresh]")){
@@ -23,7 +23,7 @@
 
     if(!document.querySelector("script[data-scratch-off-module]")){
       const script=document.createElement("script");
-      script.src=`scratch-off.js?v=1-${Date.now()}`;
+      script.src=`scratch-off.js?v=2-${Date.now()}`;
       script.async=false;
       script.dataset.scratchOffModule="";
       document.head.appendChild(script);
@@ -124,7 +124,7 @@
     });
 
     const bar=announcement.querySelector(".flash-sale-bar");
-    if(remaining===0 && bar){
+    if(remaining===0&&bar){
       bar.classList.add("is-ended");
       const label=bar.querySelector(".flash-sale-bar__lead span:last-child");
       if(label) label.textContent="Oferta encerrada";
